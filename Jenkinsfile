@@ -6,6 +6,7 @@ pipeline {
             steps {
                 echo 'Hello World'
                 sh 'printenv'
+                echo '${env.GIT_BRANCH}'
             }
         }
     }
