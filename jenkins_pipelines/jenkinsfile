@@ -2,9 +2,30 @@ pipeline {
     agent any
     
     stages {
-        stage ('Stage 1') {
+        stage ('featureX Branch') {
+            when {
+                branch 'featureX'
+            }
             steps {
-                echo 'Hola Mundo'
+                echo 'Branch is featureX'
+            }
+        }
+
+        stage ('dev Branch') {
+            when {
+                branch 'dev'
+            }
+            steps {
+                echo 'Branch is dev'
+            }
+        }
+
+        stage ('main Branch') {
+            when {
+                branch 'main'
+            }
+            steps {
+                echo 'Branch is main'
             }
         }
     }
