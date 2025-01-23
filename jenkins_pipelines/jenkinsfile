@@ -7,7 +7,7 @@ pipeline {
                 echo "GIT URL: ${GIT_URL}"
                 echo "BRANCH: ${GIT_BRANCH}"
                 echo "COMMIT: ${GIT_COMMIT}"
-                ls -al
+                sh 'ls -al'
             }
         }
 
