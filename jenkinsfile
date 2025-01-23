@@ -2,6 +2,12 @@ pipeline {
     agent any
     
     stages {
+        stage ('Test Stage') {
+            steps {
+                echo 'Bingo!!!!'
+            }
+        }
+
         stage ('Base Pipeline - featureX Branch') {
             when {
                 branch 'featureX'
