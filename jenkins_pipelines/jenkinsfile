@@ -5,9 +5,9 @@ pipeline {
         stage ('Test Stage') {
             steps {
                 echo "${GIT_URL}"
-                echo 'BRANCH: ' ${GIT_BRANCH}
-                echo 'REF: ' ${GIT_REF}
-                echo 'COMMIT: ' ${GIT_COMMIT}
+                echo "${GIT_BRANCH}"
+                echo "${GIT_REF}"
+                echo "${GIT_COMMIT}"
             }
         }
 
