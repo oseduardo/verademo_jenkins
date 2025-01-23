@@ -6,7 +6,6 @@ pipeline {
             steps {
                 echo "${GIT_URL}"
                 echo "${GIT_BRANCH}"
-                echo "${GIT_REF}"
                 echo "${GIT_COMMIT}"
             }
         }
