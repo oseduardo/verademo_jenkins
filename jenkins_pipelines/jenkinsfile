@@ -2,7 +2,7 @@ pipeline {
     agent any
     
     stages {
-        stage ('featureX Branch') {
+        stage ('Base Pipeline - featureX Branch') {
             when {
                 branch 'featureX'
             }
@@ -11,7 +11,7 @@ pipeline {
             }
         }
 
-        stage ('dev Branch') {
+        stage ('Base Pipeline - dev Branch') {
             when {
                 branch 'dev'
             }
@@ -20,7 +20,7 @@ pipeline {
             }
         }
 
-        stage ('main Branch') {
+        stage ('Base Pipeline - main Branch') {
             when {
                 branch 'main'
             }
