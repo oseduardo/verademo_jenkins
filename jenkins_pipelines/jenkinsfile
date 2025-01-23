@@ -2,12 +2,16 @@ pipeline {
     agent any
     
     stages {
-        stage ('Test Stage') {
+        stage ('Build') {
             steps {
-                echo "GIT URL: ${GIT_URL}"
-                echo "BRANCH: ${GIT_BRANCH}"
-                echo "COMMIT: ${GIT_COMMIT}"
+                echo "[INFO] GIT URL: ${GIT_URL}"
+                echo "[INFO] BRANCH: ${GIT_BRANCH}"
+                echo "[INFO] COMMIT: ${GIT_COMMIT}"
+                echo ""
                 sh 'ls -al'
+                echo "[INFO] Starting build process..."
+                sh 'mvn clean package'
+                echo "[INFO] Build process has finished."
             }
         }
 
