@@ -1,0 +1,52 @@
+pipeline {
+    agent any
+    
+    environment {
+        ENV_GIT_URL = "${GIT_URL}"
+        ENV_BRANCH = "${GIT_BRANCH}"
+        ENV_COMMIT = "${GIT_COMMIT}"
+    }
+
+    stages {
+        stage ('Build') {
+            steps {
+                echo "[INFO] GIT URL: ${ENV_GIT_URL}"
+                echo "[INFO] BRANCH: ${ENV_BRANCH}"
+                echo "[INFO] COMMIT: ${ENV_COMMIT}"
+                echo ""
+                echo "[INFO] Starting build process..."
+                dir('./app') {
+                    sh 'mvn clean package'
+                }
+                echo "[INFO] Build process has finished."
+            }
+        }
+
+        stage ('Base Pipeline - featureX Branch') {
+            when {
+                expression { ENV_BRANCH == 'origin/featureX' }
+            }
+            steps {
+                echo 'Branch is featureX'
+            }
+        }
+
+        stage ('Base Pipeline - dev Branch') {
+            when {
+                expression { ENV_BRANCH == 'origin/dev' }
+            }
+            steps {
+                echo 'Branch is dev'
+            }
+        }
+
+        stage ('Base Pipeline - main Branch') {
+            when {
+                expression { ENV_BRANCH == 'origin/main' }
+            }
+            steps {
+                echo 'Branch is main'
+            }
+        }
+    }
+}
