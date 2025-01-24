@@ -8,19 +8,17 @@ pipeline {
                 echo "[INFO] BRANCH: ${GIT_BRANCH}"
                 echo "[INFO] COMMIT: ${GIT_COMMIT}"
                 echo ""
-                sh 'ls -R ./app'
                 echo "[INFO] Starting build process..."
                 dir('./app') {
                     sh 'mvn clean package'
                 }
                 echo "[INFO] Build process has finished."
-                sh 'ls -R ./app/target'
             }
         }
 
         stage ('Base Pipeline - featureX Branch') {
             when {
-                branch 'featureX'
+                branch 'origin/featureX'
             }
             steps {
                 echo 'Branch is featureX'
@@ -29,7 +27,7 @@ pipeline {
 
         stage ('Base Pipeline - dev Branch') {
             when {
-                branch 'dev'
+                branch 'origin/dev'
             }
             steps {
                 echo 'Branch is dev'
@@ -38,7 +36,7 @@ pipeline {
 
         stage ('Base Pipeline - main Branch') {
             when {
-                branch 'main'
+                branch 'origin/main'
             }
             steps {
                 echo 'Branch is main'
