@@ -8,12 +8,13 @@ pipeline {
                 echo "[INFO] BRANCH: ${GIT_BRANCH}"
                 echo "[INFO] COMMIT: ${GIT_COMMIT}"
                 echo ""
-                sh 'ls -al'
+                sh 'ls ./app'
                 echo "[INFO] Starting build process..."
                 dir('./app') {
                     sh 'mvn clean package'
                 }
                 echo "[INFO] Build process has finished."
+                sh 'ls ./app'
             }
         }
 
