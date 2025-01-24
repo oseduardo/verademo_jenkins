@@ -33,7 +33,7 @@ pipeline {
 
         stage ('Base Pipeline - dev Branch') {
             when {
-                branch 'origin/dev'
+                expression { ENV_BRANCH == 'origin/dev' }
             }
             steps {
                 echo 'Branch is dev'
@@ -42,7 +42,7 @@ pipeline {
 
         stage ('Base Pipeline - main Branch') {
             when {
-                branch 'origin/main'
+                expression { ENV_BRANCH == 'origin/main' }
             }
             steps {
                 echo 'Branch is main'
