@@ -11,8 +11,8 @@ pipeline {
         stage ('Build') {
             steps {
                 echo "[INFO] GIT URL: ${ENV_GIT_URL}"
-                echo "[INFO] BRANCH: "
-                echo "[INFO] COMMIT: "
+                echo "[INFO] BRANCH: ${ENV_BRANCH}"
+                echo "[INFO] COMMIT: ${ENV_COMMIT}"
                 echo ""
                 echo "[INFO] Starting build process..."
                 dir('./app') {
@@ -25,7 +25,7 @@ pipeline {
 
         stage ('Base Pipeline - featureX Branch') {
             when {
-                expression { "${GIT_BRANCH}" == 'origin/featureX' }
+                expression { ENV_BRANCH == 'origin/featureX' }
             }
             steps {
                 echo 'Branch is featureX'
