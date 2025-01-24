@@ -19,7 +19,6 @@ pipeline {
                     sh 'mvn clean package'
                 }
                 echo "[INFO] Build process has finished."
-                echo "${branch}"
             }
         }
 
