@@ -10,7 +10,9 @@ pipeline {
                 echo ""
                 sh 'ls -al'
                 echo "[INFO] Starting build process..."
-                sh 'mvn clean package'
+                dir('./app') {
+                    sh 'mvn clean package'
+                }
                 echo "[INFO] Build process has finished."
             }
         }
