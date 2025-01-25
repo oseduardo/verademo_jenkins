@@ -7,7 +7,6 @@ pipeline {
                 echo "[INFO] GIT_BRANCH: ${GIT_BRANCH}"
                 echo "[INFO] GIT_COMMIT: ${GIT_COMMIT}"
                 echo "[INFO] GIT_URL: ${GIT_URL}"
-                echo "[INFO] GIT_REVISION: ${GIT_REVISION}"
                 echo ""
                 echo "[INFO] Starting build process..."
                 dir('./app') {
