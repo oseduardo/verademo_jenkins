@@ -10,8 +10,8 @@ pipeline {
     stages {
         stage ('Build') {
             steps {
+                echo "[INFO] GIT_BRANCH: ${GIT_BRANCH}"
                 echo "[INFO] GIT URL: ${ENV_GIT_URL}"
-                echo "[INFO] BRANCH: ${ENV_BRANCH}"
                 echo "[INFO] COMMIT: ${ENV_COMMIT}"
                 echo ""
                 echo "[INFO] Starting build process..."
