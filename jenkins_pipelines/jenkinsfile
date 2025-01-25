@@ -1,18 +1,14 @@
 pipeline {
     agent any
     
-    environment {
-        ENV_GIT_URL = "${GIT_URL}"
-        ENV_BRANCH = "${GIT_BRANCH}"
-        ENV_COMMIT = "${GIT_COMMIT}"
-    }
-
     stages {
         stage ('Build') {
             steps {
                 echo "[INFO] GIT_BRANCH: ${GIT_BRANCH}"
-                echo "[INFO] GIT URL: ${ENV_GIT_URL}"
-                echo "[INFO] COMMIT: ${ENV_COMMIT}"
+                echo "[INFO] GIT_LOCAL_BRANCH: ${GIT_LOCAL_BRANCH}"
+                echo "[INFO] GIT_COMMIT: ${GIT_COMMIT}"
+                echo "[INFO] GIT_URL: ${GIT_URL}"
+                echo "[INFO] GIT_REVISION: ${GIT_REVISION}"
                 echo ""
                 echo "[INFO] Starting build process..."
                 dir('./app') {
