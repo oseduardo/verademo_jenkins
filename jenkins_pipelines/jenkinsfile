@@ -5,7 +5,10 @@ pipeline {
         GenericTrigger(
             genericHeaderVariables: [
                 [key: 'X-GitHub-Event', regexpFilter: '']
-            ]
+            ],
+
+            printContributedVariables: true,
+            printPostContent: true
         )
     }
    
