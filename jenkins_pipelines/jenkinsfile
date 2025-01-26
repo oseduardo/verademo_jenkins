@@ -1,12 +1,18 @@
 pipeline {
     agent any
     
+    environment {
+        VAR_GIT_BRANCH = ${GIT_BRANCH}
+        VAR_GIT_COMMIT = ${GIT_COMMIT}
+        VAR_GIT_URL = ${GIT_URL}
+    }
+
     stages {
         stage ('Build') {
             steps {
-                echo "[INFO] GIT_BRANCH: ${GIT_BRANCH}"
-                echo "[INFO] GIT_COMMIT: ${GIT_COMMIT}"
-                echo "[INFO] GIT_URL: ${GIT_URL}"
+                echo "[INFO] GIT_BRANCH: ${VAR_GIT_BRANCH}"
+                echo "[INFO] GIT_COMMIT: ${VAR_GIT_COMMIT}"
+                echo "[INFO] GIT_URL: ${VAR_GIT_URL}"
                 echo ""
                 echo "[INFO] Starting build process..."
                 dir('./app') {
@@ -18,7 +24,7 @@ pipeline {
 
         stage ('Base Pipeline - featureX Branch') {
             when {
-                expression { ${GIT_BRANCH} == 'origin/featureX' }
+                expression { ${VAR_GITGIT_BRANCH} == 'origin/featureX' }
             }
             steps {
                 echo 'Branch is featureX'
@@ -27,7 +33,7 @@ pipeline {
 
         stage ('Base Pipeline - dev Branch') {
             when {
-                expression { ${GIT_BRANCH} == 'origin/dev' }
+                expression { ${VAR_GIT_BRANCH} == 'origin/dev' }
             }
             steps {
                 echo 'Branch is dev'
@@ -36,7 +42,7 @@ pipeline {
 
         stage ('Base Pipeline - main Branch') {
             when {
-                expression { ${GIT_BRANCH} == 'origin/main' }
+                expression { ${VAR_GIT_BRANCH} == 'origin/main' }
             }
             steps {
                 echo 'Branch is main'
