@@ -3,8 +3,8 @@ pipeline {
 
     triggers {
         GenericTrigger(
-            genericHeaderVariables: [
-                [key: 'X-GitHub-Event', regexpFilter: '']
+            genericVariables: [
+                [key: 'ref', value: '$.ref']
             ]
         )
     }
@@ -18,7 +18,7 @@ pipeline {
     stages {
         stage ('Build') {
             steps {
-                sh "echo $x_github_event"
+                sh "echo $ref"
                 echo "[INFO] GIT_BRANCH: ${VAR_GIT_BRANCH}"
                 echo "[INFO] GIT_COMMIT: ${VAR_GIT_COMMIT}"
                 echo "[INFO] GIT_URL: ${VAR_GIT_URL}"
