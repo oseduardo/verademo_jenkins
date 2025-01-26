@@ -1,6 +1,14 @@
 pipeline {
     agent any
 
+    triggers {
+        GenericTrigger(
+            genericHeaderVariables: [
+                [key: 'X-GitHub-Event', regexpFilter: '']
+            ]
+        )
+    }
+   
     environment {
         VAR_GIT_BRANCH = "${GIT_BRANCH}"
         VAR_GIT_COMMIT = "${GIT_COMMIT}"
