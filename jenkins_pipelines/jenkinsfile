@@ -1,36 +1,28 @@
 pipeline {
-    agent any
 
-    triggers {
-        GenericTrigger(
-            genericHeaderVariables: [
-                [key: 'X-GitHub-Event', regexpFilter: '']
-            ],
+  agent any
 
-            printContributedVariables: true,
-            printPostContent: true
-        )
+  triggers {
+    GenericTrigger(
+     genericVariables: [
+      [key: 'ref', value: '$.ref']
+     ],
+     
+     causeString: 'Triggered on $ref',
+     
+     printContributedVariables: true,
+     printPostContent: true,
+    
+     regexpFilterText: '$ref',
+     regexpFilterExpression: 'refs/heads/master'
+    )
+  }
+  
+  stages {
+    stage('Some step') {
+      steps {
+        sh "echo $ref"
+      }
     }
-   
-    environment {
-        VAR_GIT_BRANCH = "${GIT_BRANCH}"
-        VAR_GIT_COMMIT = "${GIT_COMMIT}"
-        VAR_GIT_URL = "${GIT_URL}"
-    }
-
-    stages {
-        stage ('Build') {
-            steps {
-                echo "[INFO] GIT_BRANCH: ${VAR_GIT_BRANCH}"
-                echo "[INFO] GIT_COMMIT: ${VAR_GIT_COMMIT}"
-                echo "[INFO] GIT_URL: ${VAR_GIT_URL}"
-                echo ""
-                echo "[INFO] Starting build process..."
-                dir('./app') {
-                    sh 'mvn clean package'
-                }
-                echo "[INFO] Build process has finished."
-            }
-        }
-    }
+  }
 }
