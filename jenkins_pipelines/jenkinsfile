@@ -9,14 +9,16 @@ pipeline {
 
     triggers {
         GenericTrigger(
-            sh 'set -e'
-            sh 'echo $x_github_event'
+            genericHeaderVariables: [
+                [key: 'x_github_event', regexpFilter: '']
+            ]
         )
     }
 
     stages {
         stage ('Build') {
             steps {
+                echo "${x_github_event}"
                 echo "[INFO] GIT_BRANCH: ${VAR_GIT_BRANCH}"
                 echo "[INFO] GIT_COMMIT: ${VAR_GIT_COMMIT}"
                 echo "[INFO] GIT_URL: ${VAR_GIT_URL}"
