@@ -12,12 +12,9 @@ pipeline {
      
      printContributedVariables: true,
      printPostContent: true,
-    
-     regexpFilterText: '$ref',
-     regexpFilterExpression: 'refs/heads/master'
     )
   }
-  
+
   stages {
     stage('Some step') {
       steps {
