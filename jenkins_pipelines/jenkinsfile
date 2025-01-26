@@ -3,7 +3,7 @@ pipeline {
 
     triggers {
         GenericTrigger(
-            genericRequestVariables: [
+            genericHeaderVariables: [
                 [key: 'X-GitHub-Event', regexpFilter: '']
             ],
 
