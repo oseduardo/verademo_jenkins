@@ -7,6 +7,14 @@ pipeline {
         VAR_GIT_URL = "${GIT_URL}"
     }
 
+    triggers {
+        GenericTrigger(
+            genericHeaderVariables: [
+                [key: 'X-GitHub-Event', regexpFilter: '']
+            ]
+        )
+    }
+
     stages {
         stage ('Build') {
             steps {
