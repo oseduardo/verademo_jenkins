@@ -29,32 +29,5 @@ pipeline {
                 echo "[INFO] Build process has finished."
             }
         }
-
-        stage ('Base Pipeline - featureX Branch') {
-            when {
-                expression { ${VAR_GIT_BRANCH} == 'origin/featureX' }
-            }
-            steps {
-                echo 'Branch is featureX'
-            }
-        }
-
-        stage ('Base Pipeline - dev Branch') {
-            when {
-                expression { ${VAR_GIT_BRANCH} == 'origin/dev' }
-            }
-            steps {
-                echo 'Branch is dev'
-            }
-        }
-
-        stage ('Base Pipeline - main Branch') {
-            when {
-                expression { ${VAR_GIT_BRANCH} == 'origin/main' }
-            }
-            steps {
-                echo 'Branch is main'
-            }
-        }
     }
 }
