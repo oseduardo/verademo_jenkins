@@ -24,7 +24,7 @@ pipeline {
 
         stage ('Base Pipeline - featureX Branch') {
             when {
-                expression { ${VAR_GITGIT_BRANCH} == 'origin/featureX' }
+                expression { ${VAR_GIT_BRANCH} == 'origin/featureX' }
             }
             steps {
                 echo 'Branch is featureX'
