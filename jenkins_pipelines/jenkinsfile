@@ -9,9 +9,8 @@ pipeline {
 
     triggers {
         GenericTrigger(
-            genericHeaderVariables: [
-                [key: 'X-GitHub-Event', regexpFilter: '']
-            ]
+            sh 'set -e'
+            sh 'echo $x_github_event'
         )
     }
 
