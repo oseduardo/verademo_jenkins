@@ -2,9 +2,9 @@ pipeline {
     agent any
     
     environment {
-        VAR_GIT_BRANCH = ${GIT_BRANCH}
-        VAR_GIT_COMMIT = ${GIT_COMMIT}
-        VAR_GIT_URL = ${GIT_URL}
+        VAR_GIT_BRANCH = "${GIT_BRANCH}"
+        VAR_GIT_COMMIT = "${GIT_COMMIT}"
+        VAR_GIT_URL = "${GIT_URL}"
     }
 
     stages {
