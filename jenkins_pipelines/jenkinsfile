@@ -39,7 +39,7 @@ pipeline {
                         sh 'mvn clean package'
                     }
                     echo "[INFO] Build process has finished."
-                    sh 'ls -al ./app'
+                    echo "[INFO] Archiving artifacts..."
                     archiveArtifacts artifacts: 'app/target/verademo.war', allowEmptyArchive: false, onlyIfSuccessful: true
                     flagBuildSuccess = true
                 }
@@ -59,6 +59,7 @@ pipeline {
         }
         steps {
                 echo "[INFO] Dispatching...."
+                sh 'ls -al ./app/target'
         }
     }
   }
