@@ -60,7 +60,7 @@ pipeline {
         }
         steps {
                 echo "[INFO] Dispatching...."
-                veracodePipelineScan("my VID","my VKEY")
+                veracodePipelineScan()
         }
     }
   }
