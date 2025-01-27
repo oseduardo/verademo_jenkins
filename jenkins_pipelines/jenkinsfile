@@ -11,7 +11,8 @@ pipeline {
         [key: 'X-GitHub-Event', regexpFilter: '']
      ],
      genericVariables: [
-        [key: 'ref', value: '$.ref']
+        [key: 'ref', value: '$.ref'],
+        [key: 'action', value: '$.action', defaultValue: 'null']
      ],
      
      causeString: 'Triggered on $ref',
@@ -28,6 +29,7 @@ pipeline {
     stage('Build') {
         steps {
             echo "[INFO] GIT_EVENT: $x_github_event"
+            echo "[INFO] GIT_ACTION: $action"
             echo "[INFO] GIT_BRANCH: ${GIT_BRANCH}"
             echo "[INFO] GIT_COMMIT: ${GIT_COMMIT}"
             echo "[INFO] GIT_URL: ${GIT_URL}"
@@ -95,10 +97,11 @@ pipeline {
                     allOf {
                         equals expected: 'origin/featureX', actual: "${GIT_BRANCH}"
                         equals expected: 'pull_request', actual: "$x_github_event"
+                        equals expected: 'opened', actual: "$action"
                     }
                 }
                 parallel {
-                    stage('Veracode SAST - Pipeline Scan') {
+                    stage('Veracode SAST - Sandbox Scan') {
                         agent any
                         steps {
                             veracodePipelineScan()
@@ -120,6 +123,32 @@ pipeline {
                     }
                 }
             }
+
+            stage('dev Pipeline - PR Open to main') {
+                when {
+                    allOf {
+                        equals expected: 'origin/dev', actual: "${GIT_BRANCH}"
+                        equals expected: 'pull_request', actual: "$x_github_event"
+                        equals expected: 'opened', actual: "$action"
+                    }
+                }
+                parallel {
+                    stage('Veracode SAST - Policy Scan') {
+                        agent any
+                        steps {
+                            veracodePipelineScan()
+                        }
+                    }
+
+                    stage('Veracode Container Security Scan') {
+                        agent any
+                        steps {
+                            veracodeContainerSecurity()
+                        }
+                    }
+                }
+            }
+
         }
     }
   }
