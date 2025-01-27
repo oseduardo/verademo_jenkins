@@ -39,18 +39,13 @@ pipeline {
                         sh 'mvn clean package'
                     }
                     echo "[INFO] Build process has finished."
+                    archiveArtifacts artifacts: './app/target/verademo.war', allowEmptyArchive: false, onlyIfSuccessful: true
                     flagBuildSuccess = true
                 }
                 catch (Exception e) {
                     unstable("${STAGE_NAME} failed!")
                     currentBuild.result = 'FAILURE'
                     flagBuildSuccess = false
-                }
-            }
-
-            post {
-                always {
-                    archiveArtifacts artifacts: './app/target/verademo.war', onlyIfSuccessful: true
                 }
             }
         }
