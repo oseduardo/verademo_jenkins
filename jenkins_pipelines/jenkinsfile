@@ -30,18 +30,20 @@ pipeline {
             echo "[INFO] GIT_URL: ${GIT_URL}"
             echo ""
 
-            try {
-                echo "[INFO] Starting build process..."
-                dir('./app') {
-                    sh 'mvn clean package'
+            script {
+                try {
+                    echo "[INFO] Starting build process..."
+                    dir('./app') {
+                        sh 'mvn clean package'
+                    }
+                    echo "[INFO] Build process has finished."
+                    stageResultMap.didBuildSucceed = true
                 }
-                echo "[INFO] Build process has finished."
-                stageResultMap.didBuildSucceed = true
-            }
-            catch (Exception e) {
-                unstable("${STAGE_NAME} failed!")
-                currentBuild.result = 'FAILURE'
-                stageResultMap.didBuildSucceed = false
+                catch (Exception e) {
+                    unstable("${STAGE_NAME} failed!")
+                    currentBuild.result = 'FAILURE'
+                    stageResultMap.didBuildSucceed = false
+                }
             }
         }
     }
