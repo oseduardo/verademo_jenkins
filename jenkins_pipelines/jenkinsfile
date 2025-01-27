@@ -76,7 +76,9 @@ pipeline {
                     stage('Veracode SAST - Pipeline Scan') {
                         agent any
                         steps {
-                            veracodePipelineScan($vID,$vKEY)
+                            echo "vID: ${vID}"
+                            echo "vKEY: ${vKEY}"
+                            //veracodePipelineScan($vID,$vKEY)
                         }
                     }
 
