@@ -44,6 +44,7 @@ pipeline {
                 stageResultMap.didBuildSucceed = false
             }
         }
+    }
 
     stage('Dispatch') {
         // Execute only if Build succeeded
