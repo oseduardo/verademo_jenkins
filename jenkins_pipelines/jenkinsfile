@@ -22,12 +22,13 @@ pipeline {
   }
 
   stages {
-    stage('Some step') {
+    stage('Prepare') {
       steps {
         sh "echo $x_github_event"
         echo "${GIT_BRANCH}"
         echo "${GIT_URL}"
         echo "${GIT_COMMIT}"
+        sh 'ls -al'
       }
     }
   }
