@@ -9,6 +9,9 @@ pipeline {
      ],
      
      causeString: 'Triggered on $ref',
+
+     token: 'mytoken123',
+     tokenCredentialId: '',
      
      printContributedVariables: true,
      printPostContent: true,
