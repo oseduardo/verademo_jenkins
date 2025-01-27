@@ -1,3 +1,5 @@
+boolean flagBuildSuccess = false
+
 pipeline {
 
   agent any
@@ -37,12 +39,12 @@ pipeline {
                         sh 'mvn clean package'
                     }
                     echo "[INFO] Build process has finished."
-                    stageResultMap.didBuildSucceed = true
+                    flagBuildSuccess = true
                 }
                 catch (Exception e) {
                     unstable("${STAGE_NAME} failed!")
                     currentBuild.result = 'FAILURE'
-                    stageResultMap.didBuildSucceed = false
+                    flagBuildSuccess = false
                 }
             }
         }
@@ -51,14 +53,10 @@ pipeline {
     stage('Dispatch') {
         // Execute only if Build succeeded
         when {
-            expression {
-                return stageResultMap.find{ it.key == "didBuildSucceed" }?.value
-            }
+            equals expected: true, actual: flagBuildSuccess
         }
         steps {
-            // Mark the stage and build results as failure on error but continue pipeline execution
-            catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
-                sh "echo Hello"
+                echo "[INFO] Dispatching...."
             }
         }
     }
