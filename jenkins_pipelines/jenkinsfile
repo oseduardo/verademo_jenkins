@@ -22,7 +22,7 @@ pipeline {
   }
 
   stages {
-    stage('Prepare') {
+    stage('Build') {
       steps {
         echo "[INFO] GIT_EVENT: $x_github_event"
         echo "[INFO] GIT_BRANCH: ${GIT_BRANCH}"
