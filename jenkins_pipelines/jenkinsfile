@@ -53,16 +53,32 @@ pipeline {
         }
     }
 
-    stage('Dispatch') {
+    stage('Veracode Security Tests') {
         // Execute only if Build succeeded
         when {
             equals expected: true, actual: flagBuildSuccess
         }
-        steps {
-                echo "[INFO] Dispatching...."
-                veracodePipelineScan()
-                veracodeSCA()
-                veracodeContainerSecurity()
+        stages {
+            stage('Veracode SAST - Pipeline Scan') {
+                agent any
+                steps {
+                    veracodePipelineScan()
+                }
+            }
+
+            stage('Veracode SCA - Agent-Base Scan') {
+                agent any
+                steps {
+                    veracodeSCA()
+                }
+            }
+
+            stage('Veracode Container Security Scan') {
+                agent any
+                steps {
+                    veracodeContainerSecurity()
+                }
+            }
         }
     }
   }
