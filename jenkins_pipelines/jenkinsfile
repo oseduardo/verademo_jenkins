@@ -24,11 +24,16 @@ pipeline {
   stages {
     stage('Prepare') {
       steps {
-        sh "echo $x_github_event"
-        echo "${GIT_BRANCH}"
-        echo "${GIT_URL}"
-        echo "${GIT_COMMIT}"
-        sh 'ls -al'
+        echo "[INFO] GIT_EVENT: $x_github_event"
+        echo "[INFO] GIT_BRANCH: ${GIT_BRANCH}"
+        echo "[INFO] GIT_COMMIT: ${GIT_COMMIT}"
+        echo "[INFO] GIT_URL: ${GIT_URL}"
+        echo ""
+        echo "[INFO] Starting build process..."
+        dir('./app') {
+            sh 'mvn clean package'
+        }
+        echo "[INFO] Build process has finished."
       }
     }
   }
