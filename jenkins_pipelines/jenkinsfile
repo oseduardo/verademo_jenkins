@@ -92,7 +92,10 @@ pipeline {
 
             stage('featureX Pipeline - PR Open to dev') {
                 when {
-                    equals expected: 'origin/featureX', actual: "${GIT_BRANCH}"
+                    allOf {
+                        equals expected: 'origin/featureX', actual: "${GIT_BRANCH}"
+                        equals expected: 'pull_request', actual: "$x_github_event"
+                    }
                 }
                 parallel {
                     stage('Veracode SAST - Pipeline Scan') {
