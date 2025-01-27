@@ -59,24 +59,28 @@ pipeline {
             equals expected: true, actual: flagBuildSuccess
         }
         stages {
-            stage('Veracode SAST - Pipeline Scan') {
-                agent any
-                steps {
-                    veracodePipelineScan()
-                }
-            }
+            stage('Probando Stage Parallel') {
+                parallel {
+                    stage('Veracode SAST - Pipeline Scan') {
+                        agent any
+                        steps {
+                            veracodePipelineScan()
+                        }
+                    }
 
-            stage('Veracode SCA - Agent-Base Scan') {
-                agent any
-                steps {
-                    veracodeSCA()
-                }
-            }
+                    stage('Veracode SCA - Agent-Base Scan') {
+                        agent any
+                        steps {
+                            veracodeSCA()
+                        }
+                    }
 
-            stage('Veracode Container Security Scan') {
-                agent any
-                steps {
-                    veracodeContainerSecurity()
+                    stage('Veracode Container Security Scan') {
+                        agent any
+                        steps {
+                            veracodeContainerSecurity()
+                        }
+                    }
                 }
             }
         }
