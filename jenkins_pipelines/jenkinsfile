@@ -61,6 +61,37 @@ pipeline {
         stages {
             stage('featureX Pipeline') {
                 when {
+                    allOf {
+                        equals expected: 'origin/featureX', actual: "${GIT_BRANCH}"
+                        equals expected: 'push', actual: "$x_github_event"
+                    }
+                }
+                parallel {
+                    stage('Veracode SAST - Pipeline Scan') {
+                        agent any
+                        steps {
+                            veracodePipelineScan()
+                        }
+                    }
+
+                    stage('Veracode SCA - Agent-Base Scan') {
+                        agent any
+                        steps {
+                            veracodeSCA()
+                        }
+                    }
+
+                    stage('Veracode Container Security Scan') {
+                        agent any
+                        steps {
+                            veracodeContainerSecurity()
+                        }
+                    }
+                }
+            }
+
+            stage('featureX Pipeline - PR Open to dev') {
+                when {
                     equals expected: 'origin/featureX', actual: "${GIT_BRANCH}"
                 }
                 parallel {
