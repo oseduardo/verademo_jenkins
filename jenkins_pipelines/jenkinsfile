@@ -1,5 +1,6 @@
 boolean flagBuildSuccess = false
 
+@Library("shared-library") _
 pipeline {
 
   agent any
@@ -59,7 +60,7 @@ pipeline {
         }
         steps {
                 echo "[INFO] Dispatching...."
-                sh 'ls -al ./app/target'
+                veracodePipelineScan("my VID","my VKEY")
         }
     }
   }
