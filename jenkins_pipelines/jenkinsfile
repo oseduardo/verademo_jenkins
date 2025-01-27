@@ -123,6 +123,32 @@ pipeline {
                     }
                 }
             }
+
+            stage('dev Pipeline - PR Open to main') {
+                when {
+                    allOf {
+                        equals expected: 'origin/dev', actual: "${GIT_BRANCH}"
+                        equals expected: 'pull_request', actual: "$x_github_event"
+                        equals expected: 'open', actual: "$action"
+                    }
+                }
+                parallel {
+                    stage('Veracode SAST - Policy Scan') {
+                        agent any
+                        steps {
+                            veracodePipelineScan()
+                        }
+                    }
+
+                    stage('Veracode Container Security Scan') {
+                        agent any
+                        steps {
+                            veracodeContainerSecurity()
+                        }
+                    }
+                }
+            }
+
         }
     }
   }
