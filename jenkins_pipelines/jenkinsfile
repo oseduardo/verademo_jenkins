@@ -23,18 +23,41 @@ pipeline {
 
   stages {
     stage('Build') {
-      steps {
-        echo "[INFO] GIT_EVENT: $x_github_event"
-        echo "[INFO] GIT_BRANCH: ${GIT_BRANCH}"
-        echo "[INFO] GIT_COMMIT: ${GIT_COMMIT}"
-        echo "[INFO] GIT_URL: ${GIT_URL}"
-        echo ""
-        echo "[INFO] Starting build process..."
-        dir('./app') {
-            sh 'mvn clean package'
+        steps {
+            echo "[INFO] GIT_EVENT: $x_github_event"
+            echo "[INFO] GIT_BRANCH: ${GIT_BRANCH}"
+            echo "[INFO] GIT_COMMIT: ${GIT_COMMIT}"
+            echo "[INFO] GIT_URL: ${GIT_URL}"
+            echo ""
+
+            try {
+                echo "[INFO] Starting build process..."
+                dir('./app') {
+                    sh 'mvn clean package'
+                }
+                echo "[INFO] Build process has finished."
+                stageResultMap.didBuildSucceed = true
+            }
+            catch (Exception e) {
+                unstable("${STAGE_NAME} failed!")
+                currentBuild.result = 'FAILURE'
+                stageResultMap.didBuildSucceed = false
+            }
         }
-        echo "[INFO] Build process has finished."
-      }
+
+    stage('Dispatch') {
+        // Execute only if Build succeeded
+        when {
+            expression {
+                return stageResultMap.find{ it.key == "didBuildSucceed" }?.value
+            }
+        }
+        steps {
+            // Mark the stage and build results as failure on error but continue pipeline execution
+            catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+                sh "echo Hello"
+            }
+        }
     }
   }
 }
