@@ -1,6 +1,6 @@
 boolean flagBuildSuccess = false
 
-@Library("veacodeGlobalSharedLibrary") _
+@Library("veracodeGlobalSharedLibrary") _
 pipeline {
 
   agent any
