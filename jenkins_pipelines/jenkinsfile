@@ -12,7 +12,7 @@ pipeline {
      ],
      genericVariables: [
         [key: 'ref', value: '$.ref'],
-        [key: 'action', value: '$.action']
+        [key: 'action', value: '$.action', defaultValue: '']
      ],
      
      causeString: 'Triggered on $ref',
