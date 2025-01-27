@@ -39,6 +39,7 @@ pipeline {
                         sh 'mvn clean package'
                     }
                     echo "[INFO] Build process has finished."
+                    sh 'ls -al ./app'
                     archiveArtifacts artifacts: './app/target/verademo.war', allowEmptyArchive: false, onlyIfSuccessful: true
                     flagBuildSuccess = true
                 }
