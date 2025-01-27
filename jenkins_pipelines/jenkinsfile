@@ -59,7 +59,10 @@ pipeline {
             equals expected: true, actual: flagBuildSuccess
         }
         stages {
-            stage('Probando Stage Parallel') {
+            stage('featureX Pipeline') {
+                when {
+                    equals expected: 'origin/featureX', actual: ${GIT_BRANCH}
+                }
                 parallel {
                     stage('Veracode SAST - Pipeline Scan') {
                         agent any
