@@ -1,3 +1,6 @@
+boolean flagBuildSuccess = false
+
+@Library("veracodeGlobalSharedLibrary") _
 pipeline {
 
   agent any
@@ -22,13 +25,102 @@ pipeline {
   }
 
   stages {
-    stage('Some step') {
-      steps {
-        sh "echo $x_github_event"
-        echo "${GIT_BRANCH}"
-        echo "${GIT_URL}"
-        echo "${GIT_COMMIT}"
-      }
+    stage('Build') {
+        steps {
+            echo "[INFO] GIT_EVENT: $x_github_event"
+            echo "[INFO] GIT_BRANCH: ${GIT_BRANCH}"
+            echo "[INFO] GIT_COMMIT: ${GIT_COMMIT}"
+            echo "[INFO] GIT_URL: ${GIT_URL}"
+            echo ""
+
+            script {
+                try {
+                    echo "[INFO] Starting build process..."
+                    dir('./app') {
+                        sh 'mvn clean package'
+                    }
+                    echo "[INFO] Build process has finished."
+                    echo "[INFO] Archiving artifacts..."
+                    archiveArtifacts artifacts: 'app/target/verademo.war', allowEmptyArchive: false, onlyIfSuccessful: true
+                    flagBuildSuccess = true
+                }
+                catch (Exception e) {
+                    unstable("${STAGE_NAME} failed!")
+                    currentBuild.result = 'FAILURE'
+                    flagBuildSuccess = false
+                }
+            }
+        }
+    }
+
+    stage('Veracode Security Tests') {
+        // Execute only if Build succeeded
+        when {
+            equals expected: true, actual: flagBuildSuccess
+        }
+        stages {
+            stage('featureX Pipeline') {
+                when {
+                    allOf {
+                        equals expected: 'origin/featureX', actual: "${GIT_BRANCH}"
+                        equals expected: 'push', actual: "$x_github_event"
+                    }
+                }
+                parallel {
+                    stage('Veracode SAST - Pipeline Scan') {
+                        agent any
+                        steps {
+                            veracodePipelineScan()
+                        }
+                    }
+
+                    stage('Veracode SCA - Agent-Base Scan') {
+                        agent any
+                        steps {
+                            veracodeSCA()
+                        }
+                    }
+
+                    stage('Veracode Container Security Scan') {
+                        agent any
+                        steps {
+                            veracodeContainerSecurity()
+                        }
+                    }
+                }
+            }
+
+            stage('featureX Pipeline - PR Open to dev') {
+                when {
+                    allOf {
+                        equals expected: 'origin/featureX', actual: "${GIT_BRANCH}"
+                        equals expected: 'pull_request', actual: "$x_github_event"
+                    }
+                }
+                parallel {
+                    stage('Veracode SAST - Pipeline Scan') {
+                        agent any
+                        steps {
+                            veracodePipelineScan()
+                        }
+                    }
+
+                    stage('Veracode SCA - Agent-Base Scan') {
+                        agent any
+                        steps {
+                            veracodeSCA()
+                        }
+                    }
+
+                    stage('Veracode Container Security Scan') {
+                        agent any
+                        steps {
+                            veracodeContainerSecurity()
+                        }
+                    }
+                }
+            }
+        }
     }
   }
 }
