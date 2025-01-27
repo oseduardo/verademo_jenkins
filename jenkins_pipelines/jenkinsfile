@@ -61,7 +61,7 @@ pipeline {
         stages {
             stage('featureX Pipeline') {
                 when {
-                    equals expected: 'origin/featureX', actual: ${GIT_BRANCH}
+                    equals expected: 'origin/featureX', actual: "${GIT_BRANCH}"
                 }
                 parallel {
                     stage('Veracode SAST - Pipeline Scan') {
