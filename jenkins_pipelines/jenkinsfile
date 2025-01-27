@@ -40,7 +40,7 @@ pipeline {
                     }
                     echo "[INFO] Build process has finished."
                     sh 'ls -al ./app'
-                    archiveArtifacts artifacts: './app/target/verademo.war', allowEmptyArchive: false, onlyIfSuccessful: true
+                    archiveArtifacts artifacts: 'app/target/verademo.war', allowEmptyArchive: false, onlyIfSuccessful: true
                     flagBuildSuccess = true
                 }
                 catch (Exception e) {
