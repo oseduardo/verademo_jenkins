@@ -5,6 +5,10 @@ pipeline {
 
   agent any
 
+    environment {
+        vID     = credentials('VID')
+        vKEY     = credentials('VKEY')
+    }
   triggers {
     GenericTrigger(
      genericHeaderVariables: [
@@ -72,7 +76,7 @@ pipeline {
                     stage('Veracode SAST - Pipeline Scan') {
                         agent any
                         steps {
-                            veracodePipelineScan()
+                            veracodePipelineScan($vID,$vKEY)
                         }
                     }
 
