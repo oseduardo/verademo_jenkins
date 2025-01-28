@@ -127,7 +127,7 @@ pipeline {
                     stage('Veracode SAST - Policy Scan') {
                         agent any
                         steps {
-                            veracodePipelineScan()
+                            veracodePolicyScan("${vID}","${vKEY}")
                         }
                     }
                 }
