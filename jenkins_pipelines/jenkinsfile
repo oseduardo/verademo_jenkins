@@ -8,6 +8,7 @@ pipeline {
     environment {
         vID     = credentials('VID')
         vKEY     = credentials('VKEY')
+        SRCCLR_API_TOKEN = credentials('SRCCLR_API_TOKEN')
     }
   triggers {
     GenericTrigger(
@@ -83,7 +84,7 @@ pipeline {
                     stage('Veracode SCA - Agent-Base Scan') {
                         agent any
                         steps {
-                            veracodeSCA()
+                            veracodeSCA("${SRCCLR_API_TOKEN}","zQQSN533")
                         }
                     }
 
