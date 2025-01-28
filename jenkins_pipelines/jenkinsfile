@@ -87,13 +87,6 @@ pipeline {
                             veracodeSCA("${SRCCLR_API_TOKEN}","zQQSN533")
                         }
                     }
-
-                    stage('Veracode Container Security Scan') {
-                        agent any
-                        steps {
-                            veracodeContainerSecurity()
-                        }
-                    }
                 }
             }
 
@@ -109,21 +102,14 @@ pipeline {
                     stage('Veracode SAST - Sandbox Scan') {
                         agent any
                         steps {
-                            veracodePipelineScan()
+                            veracodeSandboxScan("${vID}","${vKEY}")
                         }
                     }
 
                     stage('Veracode SCA - Agent-Base Scan') {
                         agent any
                         steps {
-                            veracodeSCA()
-                        }
-                    }
-
-                    stage('Veracode Container Security Scan') {
-                        agent any
-                        steps {
-                            veracodeContainerSecurity()
+                            veracodeSCA("${SRCCLR_API_TOKEN}","zQQSN533")
                         }
                     }
                 }
@@ -142,13 +128,6 @@ pipeline {
                         agent any
                         steps {
                             veracodePipelineScan()
-                        }
-                    }
-
-                    stage('Veracode Container Security Scan') {
-                        agent any
-                        steps {
-                            veracodeContainerSecurity()
                         }
                     }
                 }
