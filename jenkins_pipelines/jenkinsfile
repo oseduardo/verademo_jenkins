@@ -5,6 +5,11 @@ pipeline {
 
   agent any
 
+    environment {
+        vID     = credentials('VID')
+        vKEY     = credentials('VKEY')
+        SRCCLR_API_TOKEN = credentials('SRCCLR_API_TOKEN')
+    }
   triggers {
     GenericTrigger(
      genericHeaderVariables: [
@@ -42,8 +47,8 @@ pipeline {
                         sh 'mvn clean package'
                     }
                     echo "[INFO] Build process has finished."
-                    echo "[INFO] Archiving artifacts..."
-                    archiveArtifacts artifacts: 'app/target/verademo.war', allowEmptyArchive: false, onlyIfSuccessful: true
+                    //echo "[INFO] Archiving artifacts..."
+                    //archiveArtifacts artifacts: 'app/target/verademo.war', allowEmptyArchive: false, onlyIfSuccessful: true
                     flagBuildSuccess = true
                 }
                 catch (Exception e) {
@@ -72,21 +77,14 @@ pipeline {
                     stage('Veracode SAST - Pipeline Scan') {
                         agent any
                         steps {
-                            veracodePipelineScan()
+                            veracodePipelineScan("${vID}","${vKEY}")
                         }
                     }
 
                     stage('Veracode SCA - Agent-Base Scan') {
                         agent any
                         steps {
-                            veracodeSCA()
-                        }
-                    }
-
-                    stage('Veracode Container Security Scan') {
-                        agent any
-                        steps {
-                            veracodeContainerSecurity()
+                            veracodeSCA("${SRCCLR_API_TOKEN}","zQQSN533")
                         }
                     }
                 }
@@ -104,21 +102,14 @@ pipeline {
                     stage('Veracode SAST - Sandbox Scan') {
                         agent any
                         steps {
-                            veracodePipelineScan()
+                            veracodeSandboxScan("${vID}","${vKEY}")
                         }
                     }
 
                     stage('Veracode SCA - Agent-Base Scan') {
                         agent any
                         steps {
-                            veracodeSCA()
-                        }
-                    }
-
-                    stage('Veracode Container Security Scan') {
-                        agent any
-                        steps {
-                            veracodeContainerSecurity()
+                            veracodeSCA("${SRCCLR_API_TOKEN}","zQQSN533")
                         }
                     }
                 }
@@ -136,14 +127,7 @@ pipeline {
                     stage('Veracode SAST - Policy Scan') {
                         agent any
                         steps {
-                            veracodePipelineScan()
-                        }
-                    }
-
-                    stage('Veracode Container Security Scan') {
-                        agent any
-                        steps {
-                            veracodeContainerSecurity()
+                            veracodePolicyScan("${vID}","${vKEY}")
                         }
                     }
                 }
