@@ -46,7 +46,7 @@ pipeline {
                         sh 'mvn clean package'
                     }
                     echo "[INFO] Build process has finished."
-                    echo "[INFO] Archiving artifacts..."
+                    //echo "[INFO] Archiving artifacts..."
                     //archiveArtifacts artifacts: 'app/target/verademo.war', allowEmptyArchive: false, onlyIfSuccessful: true
                     flagBuildSuccess = true
                 }
