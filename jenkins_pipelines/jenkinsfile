@@ -38,7 +38,7 @@ pipeline {
             echo "[INFO] GIT_BRANCH: ${GIT_BRANCH}"
             echo "[INFO] GIT_COMMIT: ${GIT_COMMIT}"
             echo "[INFO] GIT_URL: ${GIT_URL}"
-            echo "[INFO] GIT_REPO_NAME: ${{ github.event.repository.name }}"
+            echo "[INFO] GIT_REPO_NAME: ${ github.event.repository.name }"
             echo ""
 
             script {
