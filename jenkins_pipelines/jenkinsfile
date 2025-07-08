@@ -41,7 +41,7 @@ pipeline {
             echo "[INFO] GIT_COMMIT: ${GIT_COMMIT}"
             echo "[INFO] GIT_URL: ${GIT_URL}"
             echo "[INFO] GIT_REPO_NAME: $repo_name"
-            echo "[INFO] GIT_REPO_NAME: $repo_full_name"
+            echo "[INFO] GIT_REPO_FULL_NAME: $repo_full_name"
             echo ""
 
             script {
@@ -106,7 +106,7 @@ pipeline {
                     stage('Veracode SAST - Sandbox Scan') {
                         agent any
                         steps {
-                            veracodeSandboxScan("${vID}","${vKEY}")
+                            veracodeSandboxScan("$repo_full_name","${vID}","${vKEY}") //Using $repo_full_name as app profile name
                         }
                     }
 
@@ -131,7 +131,7 @@ pipeline {
                     stage('Veracode SAST - Policy Scan') {
                         agent any
                         steps {
-                            veracodePolicyScan("${vID}","${vKEY}")
+                            veracodePolicyScan("$repo_full_name","${vID}","${vKEY}")
                         }
                     }
                 }
