@@ -64,6 +64,20 @@ pipeline {
         }
     }
 
+    stage('Veracode App Profile Validation'){
+        // Validates if an App Profile exists when trying to run a Sandbox/Policy scan. This event ocurrs when the event is an "Opened PR"
+        when {
+            allOf {
+                equals expected: 'pull_request', actual: "$x_github_event"
+                equals expected: 'opened', actual: "$action"
+                }
+            }
+        agent any
+        steps {
+            veracodeCreateAppProfile("$repo_full_name","${vID}","${vKEY}") //Using $repo_full_name as app profile name
+        }
+    }
+
     stage('Veracode Security Tests') {
         // Execute only if Build succeeded
         when {
@@ -131,7 +145,7 @@ pipeline {
                     stage('Veracode SAST - Policy Scan') {
                         agent any
                         steps {
-                            veracodePolicyScan("$repo_full_name","${vID}","${vKEY}")
+                            veracodePolicyScan("$repo_full_name","${vID}","${vKEY}") //Using $repo_full_name as app profile name
                         }
                     }
                 }
