@@ -43,10 +43,10 @@ pipeline {
             }
         agent any
         steps {
-            veracodeCreateAppProfile("$repo_full_name","${vID}","${vKEY}") //Using $repo_full_name as app profile name
+            veracodeCreateAppProfile("$repo_name", "Portal Pagos", "ppag","${vID}","${vKEY}") //App Profile naming: <product_id>_$repo_name
         }
     }
-    
+
     stage('Build') {
         steps {
             echo "[INFO] GIT_EVENT: $x_github_event"
@@ -120,7 +120,7 @@ pipeline {
                     stage('Veracode SAST - Sandbox Scan') {
                         agent any
                         steps {
-                            veracodeSandboxScan("$repo_full_name","${vID}","${vKEY}") //Using $repo_full_name as app profile name
+                            veracodeSandboxScan("$repo_name","${vID}","${vKEY}") //Using $repo_name as default app profile name
                         }
                     }
 
@@ -145,7 +145,7 @@ pipeline {
                     stage('Veracode SAST - Policy Scan') {
                         agent any
                         steps {
-                            veracodePolicyScan("$repo_full_name","${vID}","${vKEY}") //Using $repo_full_name as app profile name
+                            veracodePolicyScan("$repo_name","${vID}","${vKEY}") //Using $rep_name as default app profile name
                         }
                     }
                 }
