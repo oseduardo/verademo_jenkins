@@ -19,7 +19,9 @@ pipeline {
         [key: 'ref', value: '$.ref'],
         [key: 'action', value: '$.action', defaultValue: 'null'],
         [key: 'repo_name', value: '$.repository.name', defaultValue: 'null'],
-        [key: 'repo_full_name', value: '$.repository.full_name', defaultValue: 'null']
+        [key: 'repo_full_name', value: '$.repository.full_name', defaultValue: 'null'],
+        [key: 'product_name', value: 'Portal Pagos', defaultValue: 'null'], //El valor de esta variable debe venir desde el repo
+        [key: 'product_id', value: 'ppag', defaultValue: 'null'] //El valor de esta variable debe venir desde el repo
      ],
      
      causeString: 'Triggered on $ref',
@@ -43,7 +45,7 @@ pipeline {
             }
         agent any
         steps {
-            veracodeCreateAppProfile("$repo_name", "Portal Pagos", "ppag","${vID}","${vKEY}") //App Profile naming: <product_id>_$repo_name
+            veracodeCreateAppProfile("$repo_name", "$product_name", "$product_id","${vID}","${vKEY}") //App Profile naming: <product_id>_$repo_name
         }
     }
 
@@ -119,8 +121,11 @@ pipeline {
                 parallel {
                     stage('Veracode SAST - Sandbox Scan') {
                         agent any
+                        environment {
+                            appProfileName = "${product_id}_${repo_name}" //App Profile naming: <product_id>_$repo_name
+                        }
                         steps {
-                            veracodeSandboxScan("$repo_name","${vID}","${vKEY}") //Using $repo_name as default app profile name
+                            veracodeSandboxScan("${appProfileName}","${vID}","${vKEY}") //App Profile naming: <product_id>_$repo_name
                         }
                     }
 
