@@ -9,6 +9,8 @@ pipeline {
         vID     = credentials('VID')
         vKEY     = credentials('VKEY')
         SRCCLR_API_TOKEN = credentials('SRCCLR_API_TOKEN')
+        product_name = 'Portsal Pagos' //El valor de esta variable debe venir desde el repo
+        product_id = 'ppag' //El valor de esta variable debe venir desde el repo
     }
   triggers {
     GenericTrigger(
@@ -19,9 +21,7 @@ pipeline {
         [key: 'ref', value: '$.ref'],
         [key: 'action', value: '$.action', defaultValue: 'null'],
         [key: 'repo_name', value: '$.repository.name', defaultValue: 'null'],
-        [key: 'repo_full_name', value: '$.repository.full_name', defaultValue: 'null'],
-        [key: 'product_name', value: 'Portal Pagos', defaultValue: 'null'], //El valor de esta variable debe venir desde el repo
-        [key: 'product_id', value: 'ppag', defaultValue: 'null'] //El valor de esta variable debe venir desde el repo
+        [key: 'repo_full_name', value: '$.repository.full_name', defaultValue: 'null']
      ],
      
      causeString: 'Triggered on $ref',
