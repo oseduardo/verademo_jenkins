@@ -9,7 +9,7 @@ pipeline {
         vID     = credentials('VID')
         vKEY     = credentials('VKEY')
         SRCCLR_API_TOKEN = credentials('SRCCLR_API_TOKEN')
-        product_name = 'Portsal Pagos' //El valor de esta variable debe venir desde el repo
+        product_name = 'Portal Pagos' //El valor de esta variable debe venir desde el repo
         product_id = 'ppag' //El valor de esta variable debe venir desde el repo
     }
   triggers {
