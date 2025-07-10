@@ -153,7 +153,7 @@ pipeline {
                             appProfileName = "${product_id}_${repo_name}" //App Profile naming: <product_id>_$repo_name
                         }
                         steps {
-                            veracodePolicyScan("$repo_name","${vID}","${vKEY}") //Using $rep_name as default app profile name
+                            veracodePolicyScan("${appProfileName}","${vID}","${vKEY}") //Using $rep_name as default app profile name
                         }
                     }
                 }
