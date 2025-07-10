@@ -9,6 +9,8 @@ pipeline {
         vID     = credentials('VID')
         vKEY     = credentials('VKEY')
         SRCCLR_API_TOKEN = credentials('SRCCLR_API_TOKEN')
+        product_name = 'Portal Pagos' //El valor de esta variable debe venir desde el repo
+        product_id = 'ppag' //El valor de esta variable debe venir desde el repo
     }
   triggers {
     GenericTrigger(
@@ -33,6 +35,20 @@ pipeline {
   }
 
   stages {
+    stage('Veracode App Profile Validation'){
+        // Validates if an App Profile exists when trying to run a Sandbox/Policy scan. This event ocurrs when the event is an "Opened PR"
+        when {
+            allOf {
+                equals expected: 'pull_request', actual: "$x_github_event"
+                equals expected: 'opened', actual: "$action"
+                }
+            }
+        agent any
+        steps {
+            veracodeCreateAppProfile("$repo_name", "$product_name", "$product_id","${vID}","${vKEY}") //App Profile naming: <product_id>_$repo_name
+        }
+    }
+
     stage('Build') {
         steps {
             echo "[INFO] GIT_EVENT: $x_github_event"
@@ -105,8 +121,11 @@ pipeline {
                 parallel {
                     stage('Veracode SAST - Sandbox Scan') {
                         agent any
+                        environment {
+                            appProfileName = "${product_id}_${repo_name}" //App Profile naming: <product_id>_$repo_name
+                        }
                         steps {
-                            veracodeSandboxScan("$repo_full_name","${vID}","${vKEY}") //Using $repo_full_name as app profile name
+                            veracodeSandboxScan("${appProfileName}","${vID}","${vKEY}") //App Profile naming: <product_id>_$repo_name
                         }
                     }
 
@@ -130,8 +149,11 @@ pipeline {
                 parallel {
                     stage('Veracode SAST - Policy Scan') {
                         agent any
+                        environment {
+                            appProfileName = "${product_id}_${repo_name}" //App Profile naming: <product_id>_$repo_name
+                        }
                         steps {
-                            veracodePolicyScan("$repo_full_name","${vID}","${vKEY}")
+                            veracodePolicyScan("$repo_name","${vID}","${vKEY}") //Using $rep_name as default app profile name
                         }
                     }
                 }
