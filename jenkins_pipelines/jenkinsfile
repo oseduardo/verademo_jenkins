@@ -38,6 +38,12 @@ pipeline {
 
     //STAGE DE PRUEBA...SE DEBE REMOVER
     stage('Stage de Prueba'){
+        when {
+            allOf {
+                    equals expected: 'origin/featureX', actual: "${GIT_BRANCH}"
+                    equals expected: 'push', actual: "$x_github_event"
+                }
+            }
         agent any
         steps{
             veracodeCreateSCAWorkspace("$repo_name", "$product_name", "$product_id","${vID}","${vKEY}")
