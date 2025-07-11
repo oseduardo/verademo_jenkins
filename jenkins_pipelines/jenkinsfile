@@ -35,6 +35,17 @@ pipeline {
   }
 
   stages {
+
+    //STAGE DE PRUEBA...SE DEBE REMOVER
+    stage('Stage de Prueba'){
+        agent any
+        steps{
+            veracodeCreateSCAWorkspace("$repo_name", "$product_name", "$product_id","${vID}","${vKEY}")
+            return
+        }
+    }
+    ///////////////////////////////////
+
     stage('Veracode App Profile Validation'){
         // Validates if an App Profile exists when trying to run a Sandbox/Policy scan. This event ocurrs when the event is an "Opened PR"
         when {
