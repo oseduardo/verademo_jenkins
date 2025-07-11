@@ -47,7 +47,7 @@ pipeline {
         agent any
         steps{
             veracodeCreateSCAWorkspace("$repo_name", "$product_name", "$product_id","${vID}","${vKEY}")
-            return
+            sh 'exit 1'
         }
     }
     ///////////////////////////////////
