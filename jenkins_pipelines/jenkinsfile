@@ -54,7 +54,7 @@ pipeline {
         }
         steps{
             //veracodeCreateSCAWorkspace("$repo_name", "$product_name", "$product_id","${vID}","${vKEY}")
-            sh 'ls -all /home/luser/luser/'
+            sh 'ls -all'
             sh 'http --auth-type veracode_hmac https://api.veracode.com/appsec/v1/applications Content-Type:application/json'
             sh 'ls'
             sh 'exit 1'
