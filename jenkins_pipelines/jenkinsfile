@@ -56,6 +56,7 @@ pipeline {
             //veracodeCreateSCAWorkspace("$repo_name", "$product_name", "$product_id","${vID}","${vKEY}")
             sh 'ls -all -R ~/home/luser'
             sh 'touch ~/home/luser/.veracode/credentials'
+            sh 'ls -all -R ~/home/luser'
             sh "echo \"[default] veracode_api_key_id=${vID} veracode_api_key_secret${vKEY}=\" > ~/home/luser/.veracode/credentials"
             sh 'ls -all ~/home/luser/.veracode'
             sh 'cat ~/home/luser/.veracode/credentials'
