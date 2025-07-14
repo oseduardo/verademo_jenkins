@@ -51,7 +51,8 @@ pipeline {
             }
         }
         steps{
-            veracodeCreateSCAWorkspace("$repo_name", "$product_name", "$product_id","${vID}","${vKEY}")
+            //veracodeCreateSCAWorkspace("$repo_name", "$product_name", "$product_id","${vID}","${vKEY}")
+            sh 'Reconocio la imagen docker'
             sh 'exit 1'
         }
     }
