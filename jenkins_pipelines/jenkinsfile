@@ -44,7 +44,9 @@ pipeline {
                     equals expected: 'push', actual: "$x_github_event"
                 }
             }
-        agent any
+        agent {
+            docker { image 'veracode/api-signing:latest' }
+        }
         steps{
             veracodeCreateSCAWorkspace("$repo_name", "$product_name", "$product_id","${vID}","${vKEY}")
             sh 'exit 1'
