@@ -46,13 +46,15 @@ pipeline {
             }
         agent {
             docker { 
+                //USA LA IMAGEN DOCKER DEL veracode/api-signing PARA CONFIGURAR FACILMENTE LA AUTENTICACION
+                //HMAC CONTRA LAS API REST DE VERACODE
                 image 'veracode/api-signing:latest'
                 reuseNode true
             }
         }
         steps{
             //veracodeCreateSCAWorkspace("$repo_name", "$product_name", "$product_id","${vID}","${vKEY}")
-            sh 'Reconocio la imagen docker'
+            sh 'http --version'
             sh 'exit 1'
         }
     }
