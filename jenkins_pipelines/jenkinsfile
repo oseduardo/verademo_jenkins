@@ -54,7 +54,8 @@ pipeline {
         }
         steps{
             //veracodeCreateSCAWorkspace("$repo_name", "$product_name", "$product_id","${vID}","${vKEY}")
-            sh 'ls -all /.veracode'
+            sh "echo \"[default] veracode_api_key_id=${vID} veracode_api_key_secret${vKEY}=\" > /.veracode/credentials"
+            sh 'cat /.veracode/credentials'
             sh 'http --auth-type veracode_hmac https://api.veracode.com/appsec/v1/applications Content-Type:application/json'
             sh 'ls'
             sh 'exit 1'
