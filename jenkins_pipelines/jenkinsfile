@@ -45,7 +45,7 @@ pipeline {
                 }
             }
         agent {
-            docker { image 'veracode/api-signing:latest' }
+            dockerContainer { image 'veracode/api-signing:latest' }
         }
         steps{
             veracodeCreateSCAWorkspace("$repo_name", "$product_name", "$product_id","${vID}","${vKEY}")
