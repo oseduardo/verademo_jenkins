@@ -62,7 +62,7 @@ pipeline {
             //sh 'ls -all ~/home/luser/.veracode'
             //sh 'cat ~/home/luser/.veracode/credentials'
             //sh 'http --auth-type veracode_hmac "https://api.veracode.com/appsec/v1/applications"' //Content-Type:application/json'
-            sh 'http --auth-type veracode_hmac https://api.veracode.com/api/authn/v2/api_credentials'
+            sh 'http --auth-type veracode_hmac https://api.veracode.com/api/authn/v2/api_credentials Content-Type:application/json'
             sh 'exit 1'
         }
     }
