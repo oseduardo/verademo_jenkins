@@ -48,9 +48,8 @@ pipeline {
             docker { 
                 //USA LA IMAGEN DOCKER DEL veracode/api-signing PARA CONFIGURAR FACILMENTE LA AUTENTICACION
                 //HMAC CONTRA LAS API REST DE VERACODE
-                image 'veracode/api-signing:cmd-25.1.0'
-                args '--env VERACODE_API_KEY_ID=99b2e4f6c3fdeeb593976fe182dc03c7'
-                args '--env VERACODE_API_KEY_SECRET=b17ca847f23840ea0a045c0fda420f980eb8dce0a8edf5516d4af4cab7d83d65c5bcf255aab2b848101c2a02b42e35d82ac8b4e8ab2e781f3e702335d70f8247'
+                image 'veracode/api-signing:latest'
+                args '-e VERACODE_API_KEY_ID=$vID -e VERACODE_API_KEY_SECRET=$vKEY'
                 reuseNode true
             }
         }
@@ -60,8 +59,8 @@ pipeline {
             //sh 'sudo touch ~/home/luser/.veracode/credentials'
             //sh 'ls -all -R ~/home/luser'
             //sh "echo \"[default] veracode_api_key_id=${vID} veracode_api_key_secret${vKEY}=\" > ~/home/luser/.veracode/credentials"
-            sh 'ls -all ~/home/luser/.veracode'
-            sh 'cat ~/home/luser/.veracode/credentials'
+            //sh 'ls -all ~/home/luser/.veracode'
+            //sh 'cat ~/home/luser/.veracode/credentials'
             sh 'http --auth-type veracode_hmac https://api.veracode.com/appsec/v1/applications Content-Type:application/json'
             sh 'ls'
             sh 'exit 1'
