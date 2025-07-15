@@ -54,8 +54,8 @@ pipeline {
             }
         }
         steps{
-            //veracodeCreateSCAWorkspace("$repo_name", "$product_name", "$product_id","${vID}","${vKEY}")
-            sh 'http --auth-type veracode_hmac GET https://api.veracode.com/appsec/v1/applications Content-Type:application/json'
+            veracodeCreateSCAWorkspace("$repo_name", "$product_name", "$product_id")
+            //sh 'http --auth-type veracode_hmac GET https://api.veracode.com/appsec/v1/applications Content-Type:application/json'
             sh 'exit 1'
         }
     }
