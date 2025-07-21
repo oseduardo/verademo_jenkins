@@ -120,13 +120,25 @@ pipeline {
                     }
                 }
                 parallel {
+                    /********************************************
+                    // inicialmente se usara estrategia con sandbox scan en push/commit
+                    // sobre rama feature/<ticket_jira>
                     stage('Veracode SAST - Pipeline Scan') {
                         agent any
                         steps {
                             veracodePipelineScan("${vID}","${vKEY}")
                         }
                     }
-
+                    *********************************************/
+                    stage('Veracode SAST - Sandbox Scan') {
+                        agent any
+                        environment {
+                            appProfileName = "${product_id}_${repo_name}" //App Profile naming: <product_id>_$repo_name
+                        }
+                        steps {
+                            veracodeSandboxScan("${appProfileName}","${GIT_BRANCH}","${vID}","${vKEY}") //App Profile naming: <product_id>_$repo_name, Sandbox name: <GIT_BRANCH>
+                        }
+                    }
                     stage('Veracode SCA - Agent-Base Scan') {
                         agent any
                         steps {
@@ -151,7 +163,7 @@ pipeline {
                             appProfileName = "${product_id}_${repo_name}" //App Profile naming: <product_id>_$repo_name
                         }
                         steps {
-                            veracodeSandboxScan("${appProfileName}","${vID}","${vKEY}") //App Profile naming: <product_id>_$repo_name
+                            veracodeSandboxScan("${appProfileName}","${GIT_BRANCH}","${vID}","${vKEY}") //App Profile naming: <product_id>_$repo_name
                         }
                     }
 
