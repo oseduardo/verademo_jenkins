@@ -55,7 +55,7 @@ pipeline {
         }
         steps{
             veracodeCreateSCAWorkspace("$repo_name", "$product_name", "$product_id")
-            sh 'echo $JAVA_HOME'
+            sh 'echo $PATH'
             //sh 'http --auth-type veracode_hmac GET https://api.veracode.com/srcclr/v3/workspaces accept-encoding:gzip user-agent:veracode'
             sh 'exit 1'
         }
