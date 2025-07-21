@@ -11,7 +11,7 @@ pipeline {
         SRCCLR_API_TOKEN = credentials('SRCCLR_API_TOKEN')
         product_name = 'Portal Pagos' //El valor de esta variable debe venir desde el repo
         product_id = 'ppag' //El valor de esta variable debe venir desde el repo
-        wkspSiteId = '' //Esta variable se instancia en la validacion del workspace para SCA (ABS)
+        //wkspSiteId = '' //Esta variable se instancia en la validacion del workspace para SCA (ABS)
     }
   triggers {
     GenericTrigger(
