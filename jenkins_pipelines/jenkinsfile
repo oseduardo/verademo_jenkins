@@ -55,6 +55,7 @@ pipeline {
         }
         steps{
             veracodeCreateSCAWorkspace("$repo_name", "$product_name", "$product_id")
+            sh 'echo $JAVA_HOME'
             //sh 'http --auth-type veracode_hmac GET https://api.veracode.com/srcclr/v3/workspaces accept-encoding:gzip user-agent:veracode'
             sh 'exit 1'
         }
@@ -62,13 +63,8 @@ pipeline {
     ///////////////////////////////////
 
     stage('Veracode App Profile Validation'){
-        // Validates if an App Profile exists when trying to run a Sandbox/Policy scan. This event ocurrs when the event is an "Opened PR"
-        when {
-            allOf {
-                equals expected: 'pull_request', actual: "$x_github_event"
-                equals expected: 'opened', actual: "$action"
-                }
-            }
+        // Validates if an App Profile exists when trying to run a Sandbox/Policy scan.
+        // In a model where all admin steps are 100% automated, it's possible to call this procedure at any point when aotumated admin tasks are executed when creating a repo
         agent any
         steps {
             veracodeCreateAppProfile("$repo_name", "$product_name", "$product_id","${vID}","${vKEY}") //App Profile naming: <product_id>_$repo_name
