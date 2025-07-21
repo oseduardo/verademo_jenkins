@@ -11,7 +11,7 @@ pipeline {
         SRCCLR_API_TOKEN = credentials('SRCCLR_API_TOKEN')
         product_name = 'Portal Pagos' //El valor de esta variable debe venir desde el repo
         product_id = 'ppag' //El valor de esta variable debe venir desde el repo
-        //wkspSiteId = '' //Esta variable se instancia en la validacion del workspace para SCA (ABS)
+        wkspSiteId = '' //Esta variable se instancia en la validacion del workspace para SCA (ABS)
     }
   triggers {
     GenericTrigger(
@@ -56,7 +56,7 @@ pipeline {
         }
         steps{
             script{
-                def wkspSiteID = veracodeCreateSCAWorkspace(repo_name,product_name,product_id)
+                wkspSiteID = veracodeCreateSCAWorkspace(repo_name,product_name,product_id)
                 echo "wkspSiteID es: ${wkspSiteID}"
                 //sh 'http --auth-type veracode_hmac GET https://api.veracode.com/srcclr/v3/workspaces accept-encoding:gzip user-agent:veracode'
                 sh 'exit 1'
