@@ -141,7 +141,7 @@ pipeline {
                     stage('Veracode SCA - Agent-Base Scan') {
                         agent any
                         steps {
-                            veracodeSCA("${SRCCLR_API_TOKEN}","zQQSN533")
+                            veracodeSCA("${SRCCLR_API_TOKEN}",wkspSiteID)
                         }
                     }
                 }
