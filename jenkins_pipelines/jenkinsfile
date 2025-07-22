@@ -57,8 +57,6 @@ pipeline {
 
                 //Validates if <product_id>_<repo_name> exists in platform; if not, it's created. It returns the site_id to be used when running SCA (ABS)
                 wkspSiteID = veracodeCreateSCAWorkspace(repo_name,product_name,product_id)
-                echo "wkspSiteID es: ${wkspSiteID}"
-                sh 'exit 1'
             }
         }
     }
