@@ -109,7 +109,7 @@ pipeline {
             equals expected: true, actual: flagBuildSuccess
         }
         stages {
-            stage('featureX Pipeline') {
+            stage('featureX - Push Commit') {
                 when {
                     allOf {
                         equals expected: 'origin/featureX', actual: "${GIT_BRANCH}"
@@ -136,12 +136,14 @@ pipeline {
                             veracodeSandboxScan("${appProfileName}","${GIT_BRANCH}","${vID}","${vKEY}") //App Profile naming: <product_id>_$repo_name, Sandbox name: <GIT_BRANCH>
                         }
                     }
+                    /*****************************************************
                     stage('Veracode SCA - Agent-Base Scan') {
                         agent any
                         steps {
                             veracodeSCA("${SRCCLR_API_TOKEN}",wkspSiteID)
                         }
                     }
+                    ******************************************************/
                 }
             }
 
@@ -164,12 +166,14 @@ pipeline {
                         }
                     }
 
+                    /*******************************************************
                     stage('Veracode SCA - Agent-Base Scan') {
                         agent any
                         steps {
-                            veracodeSCA("${SRCCLR_API_TOKEN}","zQQSN533")
+                            veracodeSCA("${SRCCLR_API_TOKEN}",wkspSiteID)
                         }
                     }
+                    *********************************************************/
                 }
             }
 
