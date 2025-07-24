@@ -85,7 +85,7 @@ pipeline {
             echo "[INFO] GIT_REPO_NAME: $repo_name"
             echo "[INFO] GIT_REPO_FULL_NAME: $repo_full_name"
             echo ""
-            exit 1
+            return
 
             script {
                 try {
