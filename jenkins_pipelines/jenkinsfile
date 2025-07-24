@@ -23,7 +23,9 @@ pipeline {
         [key: 'ref', value: '$.ref'],
         [key: 'action', value: '$.action', defaultValue: 'null'],
         [key: 'repo_name', value: '$.repository.name', defaultValue: 'null'],
-        [key: 'repo_full_name', value: '$.repository.full_name', defaultValue: 'null']
+        [key: 'repo_full_name', value: '$.repository.full_name', defaultValue: 'null'],
+        [key: 'origin_branch_name', value: '$.pull_request.head.ref', defaultValue: 'null'],
+        [key: 'target_branch_name', value: '$.pull_request.base.ref', defaultValue: 'null']
      ],
      
      causeString: 'Triggered on $ref',
@@ -76,12 +78,14 @@ pipeline {
         steps {
             echo "[INFO] GIT_EVENT: $x_github_event"
             echo "[INFO] GIT_ACTION: $action"
-            echo "[INFO] GIT_BRANCH: ${GIT_BRANCH}"
+            echo "[INFO] GIT_ORIGIN_BRANCH: $origin_branch_name"
+            echo "[INFO] GIT_TARGET_BRANCH: $target_branch_name"
             echo "[INFO] GIT_COMMIT: ${GIT_COMMIT}"
             echo "[INFO] GIT_URL: ${GIT_URL}"
             echo "[INFO] GIT_REPO_NAME: $repo_name"
             echo "[INFO] GIT_REPO_FULL_NAME: $repo_full_name"
             echo ""
+            exit 1
 
             script {
                 try {
