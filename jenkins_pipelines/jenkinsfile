@@ -53,6 +53,16 @@ pipeline {
             }
         }
         steps{
+            echo "[INFO] GIT_EVENT: $x_github_event"
+            echo "[INFO] GIT_ACTION: $action"
+            echo "[INFO] GIT_ORIGIN_BRANCH: $origin_branch_name"
+            echo "[INFO] GIT_TARGET_BRANCH: $target_branch_name"
+            echo "[INFO] GIT_COMMIT: ${GIT_COMMIT}"
+            echo "[INFO] GIT_URL: ${GIT_URL}"
+            echo "[INFO] GIT_REPO_NAME: $repo_name"
+            echo "[INFO] GIT_REPO_FULL_NAME: $repo_full_name"
+            echo ""
+
             script{
                 //Validates if ${appProfileName} exists in platform; if not, it's created
                 veracodeCreateAppProfile("$repo_name", "$product_name", "$product_id","${vID}","${vKEY}") //App Profile naming: <product_id>_<$repo_name>
@@ -76,17 +86,6 @@ pipeline {
 
     stage('Build') {
         steps {
-            echo "[INFO] GIT_EVENT: $x_github_event"
-            echo "[INFO] GIT_ACTION: $action"
-            echo "[INFO] GIT_ORIGIN_BRANCH: $origin_branch_name"
-            echo "[INFO] GIT_TARGET_BRANCH: $target_branch_name"
-            echo "[INFO] GIT_COMMIT: ${GIT_COMMIT}"
-            echo "[INFO] GIT_URL: ${GIT_URL}"
-            echo "[INFO] GIT_REPO_NAME: $repo_name"
-            echo "[INFO] GIT_REPO_FULL_NAME: $repo_full_name"
-            echo ""
-            sh 'exit 1'
-
             script {
                 try {
                     echo "[INFO] Starting build process..."
@@ -155,6 +154,7 @@ pipeline {
                 when {
                     allOf {
                         equals expected: 'origin/featureX', actual: "${GIT_BRANCH}"
+                        equals expected: 'dev', actual: "$target_branch_name"
                         equals expected: 'pull_request', actual: "$x_github_event"
                         equals expected: 'opened', actual: "$action"
                     }
@@ -166,7 +166,7 @@ pipeline {
                             appProfileName = "${product_id}_${repo_name}" //App Profile naming: <product_id>_$repo_name
                         }
                         steps {
-                            veracodeSandboxScan("${appProfileName}","${GIT_BRANCH}","${vID}","${vKEY}") //App Profile naming: <product_id>_$repo_name
+                            veracodeSandboxScan("${appProfileName}","$target_branch_name","${vID}","${vKEY}") //App Profile naming: <product_id>_$repo_name
                         }
                     }
 
@@ -185,6 +185,7 @@ pipeline {
                 when {
                     allOf {
                         equals expected: 'origin/dev', actual: "${GIT_BRANCH}"
+                        equals expected: 'main', actual: "$target_branch_name"
                         equals expected: 'pull_request', actual: "$x_github_event"
                         equals expected: 'opened', actual: "$action"
                     }
