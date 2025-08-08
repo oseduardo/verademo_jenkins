@@ -72,7 +72,7 @@ pipeline {
                 wkspSiteID = veracodeCreateSCAWorkspace(repo_name,product_name,product_id)
 
                 //Creates veracode-artifacts folder to store artifacts to be scanned
-                def folder = new File(artifactsPath)
+                def folder = File(artifactsPath)
 
                 if (folder.exists() && folder.isDirectory()) {
                     sh "rm -r ${artifactsPath}/*"
