@@ -7,8 +7,8 @@ pipeline {
 
     agent {
         docker { 
-        //It usesveracode/api-signing docker image to setup HMAC authentication to invoke Veracode's REST APIs
-            withCredentials([string(credentialsId: 'VID', variable: 'vID'), string(credentialsId: 'VKEY', variable: 'vKEY')]) {
+            //It usesveracode/api-signing docker image to setup HMAC authentication to invoke Veracode's REST APIs
+            withCredentials([ usernamePassword (credentialsId: 'veracode-creds', usernameVariable: 'vID', passwordVariable: 'vKEY') ]) {
                 image 'veracode/api-signing:latest'
                 args "-e VERACODE_API_KEY_ID=$vID -e VERACODE_API_KEY_SECRET=$vKEY"
                 reuseNode true
