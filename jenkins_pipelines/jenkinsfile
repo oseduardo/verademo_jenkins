@@ -82,8 +82,6 @@ pipeline {
                     sh "export VERACODE_API_KEY_ID=${vID}"
                     sh "export VERACODE_API_KEY_SECRET=${vKEY}"
 
-                    echo "$VERACODE_API_KEY_ID"
-
                     //Validates if ${appProfileName} exists in platform; if not, it's created
                     veracodeCreateAppProfile("$repo_name", "$product_name", "$product_id","${vID}","${vKEY}") //App Profile naming: <product_id>_<$repo_name>
 
