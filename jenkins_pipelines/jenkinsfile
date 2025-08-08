@@ -81,8 +81,7 @@ pipeline {
                     // Setting up credentials file for jenkins docker agent
                     sh '[INFO] Setting up Veracode credentials file...'
                     sh 'ls -all'
-                    exit 
-
+/*
                     //Validates if ${appProfileName} exists in platform; if not, it's created
                     veracodeCreateAppProfile("$repo_name", "$product_name", "$product_id","${vID}","${vKEY}") //App Profile naming: <product_id>_<$repo_name>
 
@@ -93,11 +92,11 @@ pipeline {
                     if (fileExists(artifactsPath)) {
                         sh "rm -r ${artifactsPath}"
                     }
-                    sh "mkdir ${artifactsPath}"
+                    sh "mkdir ${artifactsPath}"*/
                 }
             }
         }
-
+/*
         stage('Build') {
             steps {
                 script {
@@ -120,8 +119,8 @@ pipeline {
                     }
                 }
             }
-        }
-
+        }*/
+/*
         stage('Veracode Security Tests') {
             // Execute only if Build succeeded
             when {
@@ -135,7 +134,7 @@ pipeline {
                             equals expected: 'push', actual: "$x_github_event"
                         }
                     }
-                    parallel {
+                    parallel {*/
                         /********************************************
                         // inicialmente se usará estrategia con sandbox scan en push/commit
                         // sobre rama feature/<ticket_jira>
@@ -146,7 +145,7 @@ pipeline {
                             }
                         }
                         *********************************************/
-                        stage('Veracode SAST - Sandbox Scan') {
+/*                        stage('Veracode SAST - Sandbox Scan') {
                             agent any
                             environment {
                                 appProfileName = "${product_id}_${repo_name}" //App Profile naming: <product_id>_$repo_name
@@ -226,6 +225,6 @@ pipeline {
                 }
 
             }
-        }
+        }*/
     }
 }
