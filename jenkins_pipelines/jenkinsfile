@@ -13,7 +13,7 @@ pipeline {
         product_id = 'ppag' // Custom Field - This value comes up from repo
         appProfileName = '' // This variable is instantiated in stage 'Setting Up Veracode Base Components'
         wkspSiteId = '' // This variable is instantiated in stage 'Setting Up Veracode Base Components'
-        artifactsPath = 'veracode-artifacts' // This folder is created dinamically in pipeline runtime and will have all artifacts to be scanned
+        artifactsPath = "${WORKSPACE}/veracode-artifacts" // This folder is created dinamically in pipeline runtime and will have all artifacts to be scanned
     }
   triggers {
     GenericTrigger(
@@ -92,7 +92,6 @@ pipeline {
                     //echo "[INFO] Archiving artifacts..."
                     //archiveArtifacts artifacts: 'app/target/verademo.war', allowEmptyArchive: false, onlyIfSuccessful: true
                     sh "mv ./app/target/verademo.war ${artifactsPath}"
-                    echo "Jenkins Workspace: ${WORKSPACE}"
                     sh "ls -all"
                     flagBuildSuccess = true
                 }
