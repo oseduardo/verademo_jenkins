@@ -9,10 +9,11 @@ pipeline {
         vID     = credentials('VID')
         vKEY     = credentials('VKEY')
         SRCCLR_API_TOKEN = credentials('SRCCLR_API_TOKEN')
-        product_name = 'Portal Pagos' //El valor de esta variable debe venir desde el repo
-        product_id = 'ppag' //El valor de esta variable debe venir desde el repo
-        appProfileName = '' //Esta variable se instancia en el stage 'Setting Up Veracode Base Components'
-        wkspSiteId = '' //Esta variable se instancia en el stage 'Setting Up Veracode Base Components'
+        product_name = 'Portal Pagos' // Custom Field - This value comes up from repo
+        product_id = 'ppag' // Custom Field - This value comes up from repo
+        appProfileName = '' // This variable is instantiated in stage 'Setting Up Veracode Base Components'
+        wkspSiteId = '' // This variable is instantiated in stage 'Setting Up Veracode Base Components'
+        artifactsPath = 'veracode-artifacts' // This folder is created dinamically in pipeline runtime and will have all artifacts to be scanned
     }
   triggers {
     GenericTrigger(
@@ -69,6 +70,11 @@ pipeline {
 
                 //Validates if <product_id>_<repo_name> exists in platform; if not, it's created. It returns the site_id to be used when running SCA (ABS)
                 wkspSiteID = veracodeCreateSCAWorkspace(repo_name,product_name,product_id)
+
+                //Creates veracode-artifacts folder to store artifacts to be scanned
+                sh "mkdir ${artifactsPath}"
+                sh 'ls --all'
+                sh 'exit 0'
             }
         }
     }
@@ -84,6 +90,7 @@ pipeline {
                     echo "[INFO] Build process has finished."
                     //echo "[INFO] Archiving artifacts..."
                     //archiveArtifacts artifacts: 'app/target/verademo.war', allowEmptyArchive: false, onlyIfSuccessful: true
+                    artifactsPath = 'app/target/verademo.war'
                     flagBuildSuccess = true
                 }
                 catch (Exception e) {
