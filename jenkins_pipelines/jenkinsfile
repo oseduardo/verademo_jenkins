@@ -73,17 +73,6 @@ pipeline {
         }
     }
 
-    /******************************************************
-    stage('Veracode App Profile Validation'){
-        // Validates if an App Profile exists when trying to run a Sandbox/Policy scan.
-        // 
-        agent any
-        steps {
-            veracodeCreateAppProfile("$repo_name", "$product_name", "$product_id","${vID}","${vKEY}") //App Profile naming: <product_id>_$repo_name
-        }
-    }
-    *******************************************************/
-
     stage('Build') {
         steps {
             script {
@@ -139,14 +128,14 @@ pipeline {
                             veracodeSandboxScan("${appProfileName}","${GIT_BRANCH}","${vID}","${vKEY}") //App Profile naming: <product_id>_$repo_name, Sandbox name: <GIT_BRANCH>
                         }
                     }
-                    /*****************************************************
+
                     stage('Veracode SCA - Agent-Base Scan') {
                         agent any
                         steps {
                             veracodeSCA("${SRCCLR_API_TOKEN}",wkspSiteID)
                         }
                     }
-                    ******************************************************/
+
                 }
             }
 
@@ -170,14 +159,13 @@ pipeline {
                         }
                     }
 
-                    /*******************************************************
                     stage('Veracode SCA - Agent-Base Scan') {
                         agent any
                         steps {
                             veracodeSCA("${SRCCLR_API_TOKEN}",wkspSiteID)
                         }
                     }
-                    *********************************************************/
+
                 }
             }
 
@@ -198,6 +186,13 @@ pipeline {
                         }
                         steps {
                             veracodePolicyScan("${appProfileName}","${vID}","${vKEY}") //Using $rep_name as default app profile name
+                        }
+                    }
+
+                    stage('Veracode SCA - Agent-Base Scan') {
+                        agent any
+                        steps {
+                            veracodeSCA("${SRCCLR_API_TOKEN}",wkspSiteID)
                         }
                     }
                 }
