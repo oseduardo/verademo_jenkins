@@ -80,7 +80,7 @@ pipeline {
                 script{
                     // Setting up credentials file for jenkins docker agent
                     sh '[INFO] Setting up Veracode credentials file...'
-                    sh "ls -all ../"
+                    sh "ls -all"
                     exit 
 
                     //Validates if ${appProfileName} exists in platform; if not, it's created
