@@ -9,7 +9,7 @@ pipeline {
         docker { 
             //It usesveracode/api-signing docker image to setup HMAC authentication to invoke Veracode's REST APIs
             image 'veracode/api-signing:latest'
-            //args '-e VERACODE_API_KEY_ID=$vID -e VERACODE_API_KEY_SECRET=$vKEY'
+            args "-e VERACODE_API_KEY_ID=$credentials('VID') -e VERACODE_API_KEY_SECRET=$credentials('VKEY')"
             //reuseNode true
         }
     }
@@ -78,11 +78,6 @@ pipeline {
                 echo ""
 
                 script{
-                    // Setting up credentials file for jenkins docker agent
-                    echo "[INFO] Setting up Veracode credentials file..."
-                    sh 'ls -all /Users/orodriguez'
-                    echo "$HOME"
-/*
                     //Validates if ${appProfileName} exists in platform; if not, it's created
                     veracodeCreateAppProfile("$repo_name", "$product_name", "$product_id","${vID}","${vKEY}") //App Profile naming: <product_id>_<$repo_name>
 
