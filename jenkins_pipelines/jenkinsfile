@@ -92,6 +92,7 @@ pipeline {
                     //echo "[INFO] Archiving artifacts..."
                     //archiveArtifacts artifacts: 'app/target/verademo.war', allowEmptyArchive: false, onlyIfSuccessful: true
                     sh "mv ./app/target/verademo.war ${artifactsPath}"
+                    echo "Jenkins Workspace: ${WORKSPACE}"
                     sh "ls -all"
                     flagBuildSuccess = true
                 }
