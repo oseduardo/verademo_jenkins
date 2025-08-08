@@ -73,7 +73,7 @@ pipeline {
 
                 //Creates veracode-artifacts folder to store artifacts to be scanned
                 sh "mkdir ${artifactsPath}"
-                sh 'ls --all'
+                sh 'ls -all'
                 sh 'exit 0'
             }
         }
