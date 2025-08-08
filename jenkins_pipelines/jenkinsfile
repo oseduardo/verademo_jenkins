@@ -76,8 +76,6 @@ pipeline {
                     sh "rm -r ${artifactsPath}"
                 }
                 sh "mkdir ${artifactsPath}"
-                sh 'ls -all'
-                sh 'exit 0'
             }
         }
     }
@@ -93,7 +91,7 @@ pipeline {
                     echo "[INFO] Build process has finished."
                     //echo "[INFO] Archiving artifacts..."
                     //archiveArtifacts artifacts: 'app/target/verademo.war', allowEmptyArchive: false, onlyIfSuccessful: true
-                    artifactsPath = 'app/target/verademo.war'
+                    sh "mv ./app/target/verademo.war ${artifactsPath}"
                     flagBuildSuccess = true
                 }
                 catch (Exception e) {
@@ -135,7 +133,7 @@ pipeline {
                             appProfileName = "${product_id}_${repo_name}" //App Profile naming: <product_id>_$repo_name
                         }
                         steps {
-                            veracodeSandboxScan("${appProfileName}","${GIT_BRANCH}","${vID}","${vKEY}") //App Profile naming: <product_id>_$repo_name, Sandbox name: <GIT_BRANCH>
+                            veracodeSandboxScan("${appProfileName}","${GIT_BRANCH}","${artifactsPath}","${vID}","${vKEY}")
                         }
                     }
 
@@ -165,7 +163,7 @@ pipeline {
                             appProfileName = "${product_id}_${repo_name}" //App Profile naming: <product_id>_$repo_name
                         }
                         steps {
-                            veracodeSandboxScan("${appProfileName}","$target_branch_name","${vID}","${vKEY}") //App Profile naming: <product_id>_$repo_name
+                            veracodeSandboxScan("${appProfileName}","$target_branch_name","${artifactsPath}","${vID}","${vKEY}")
                         }
                     }
 
@@ -195,7 +193,7 @@ pipeline {
                             appProfileName = "${product_id}_${repo_name}" //App Profile naming: <product_id>_$repo_name
                         }
                         steps {
-                            veracodePolicyScan("${appProfileName}","${vID}","${vKEY}") //Using $rep_name as default app profile name
+                            veracodePolicyScan("${appProfileName}","${artifactsPath}","${vID}","${vKEY}") //Using $rep_name as default app profile name
                         }
                     }
 
