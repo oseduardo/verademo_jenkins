@@ -9,7 +9,7 @@ pipeline {
         docker { 
             //It usesveracode/api-signing docker image to setup HMAC authentication to invoke Veracode's REST APIs
             image 'veracode/api-signing:latest'
-            args "-e VERACODE_API_KEY_ID=$credentials('VID') -e VERACODE_API_KEY_SECRET=$credentials('VKEY')"
+            //args "-e VERACODE_API_KEY_ID=$credentials('VID') -e VERACODE_API_KEY_SECRET=$credentials('VKEY')"
             //reuseNode true
         }
     }
@@ -78,6 +78,12 @@ pipeline {
                 echo ""
 
                 script{
+
+                    sh "export VERACODE_API_KEY_ID=${vID}"
+                    sh "export VERACODE_API_KEY_SECRET=${vKEY}"
+
+                    echo "$VERACODE_API_KEY_ID"
+
                     //Validates if ${appProfileName} exists in platform; if not, it's created
                     veracodeCreateAppProfile("$repo_name", "$product_name", "$product_id","${vID}","${vKEY}") //App Profile naming: <product_id>_<$repo_name>
 
