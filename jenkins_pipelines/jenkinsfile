@@ -76,7 +76,7 @@ pipeline {
                 echo ""
 
                 script{
-                    docker.build("--build-arg VERACODE_API_KEY_ID=$vID --build-arg VERACODE_API_KEY_SECRET=$vKEY .")
+                    sh "docker run -e VERACODE_API_KEY_ID=${vID} -e VERACODE_API_KEY_SECRET=${vKEY} veracode/api-signing:latest"
 
                     //Validates if ${appProfileName} exists in platform; if not, it's created
                     veracodeCreateAppProfile("$repo_name", "$product_name", "$product_id","${vID}","${vKEY}") //App Profile naming: <product_id>_<$repo_name>
