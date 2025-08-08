@@ -73,10 +73,9 @@ pipeline {
 
                 //Creates veracode-artifacts folder to store artifacts to be scanned
                 if (fileExists(artifactsPath)) {
-                    sh "rm -r ${artifactsPath}/*"
-                } else {
-                    sh "mkdir ${artifactsPath}"
+                    sh "rm -r ${artifactsPath}"
                 }
+                sh "mkdir ${artifactsPath}"
                 sh 'ls -all'
                 sh 'exit 0'
             }
