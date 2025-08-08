@@ -88,7 +88,7 @@ pipeline {
                     if (fileExists(artifactsPath)) {
                         sh "rm -r ${artifactsPath}"
                     }
-                    sh "mkdir ${artifactsPath}"*/
+                    sh "mkdir ${artifactsPath}"
                 }
             }
         }
