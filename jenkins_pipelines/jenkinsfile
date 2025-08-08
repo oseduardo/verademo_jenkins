@@ -76,7 +76,9 @@ pipeline {
                 echo ""
 
                 script{
-                    sh "docker run -e VERACODE_API_KEY_ID=${vID} -e VERACODE_API_KEY_SECRET=${vKEY} veracode/api-signing:latest"
+                    //docker.image('veracode/api-signing:latest').withRun('-p 3306:3306 -e "MYSQL_ROOT_PASSWORD=root"', '--default-authentication-plugin=mysql_native_password')
+                    sh "export VERACODE_API_KEY_ID=${vID}"
+                    sh "export VERACODE_API_KEY_SECRET=${vKEY}"
 
                     //Validates if ${appProfileName} exists in platform; if not, it's created
                     veracodeCreateAppProfile("$repo_name", "$product_name", "$product_id","${vID}","${vKEY}") //App Profile naming: <product_id>_<$repo_name>
