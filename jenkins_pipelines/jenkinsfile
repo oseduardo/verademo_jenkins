@@ -118,13 +118,6 @@ pipeline {
                 equals expected: true, actual: flagBuildSuccess
             }
             stages {
-                script{
-                    // Get artifacts to scan
-                    echo "[INFO] Getting artifacts to be scanned..."
-                    unstash 'myVeraArtifacts'
-
-                    sh 'ls veracode-artifacts'
-                }
                 stage('featureX - Push Commit') {
                     when {
                         allOf {
@@ -133,6 +126,10 @@ pipeline {
                         }
                     }
                     parallel {
+                        // Get artifacts to scan
+                        echo "[INFO] Getting artifacts to be scanned..."
+                        unstash 'myVeraArtifacts'
+                        sh 'ls veracode-artifacts'
                         /********************************************
                         // inicialmente se usará estrategia con sandbox scan en push/commit
                         // sobre rama feature/<ticket_jira>
