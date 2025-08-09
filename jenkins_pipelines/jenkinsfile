@@ -145,10 +145,9 @@ pipeline {
                                 // Get artifacts to scan
                                 echo "[INFO] Getting artifacts to be scanned..."
                                 unstash 'myVeraArtifacts'
-                                sh 'ls veracode-artifacts'
 
                                 // Launch Veracode Sandbox Scan
-                                veracodeSandboxScan("${appProfileName}","${GIT_BRANCH}","${artifactsPath}","${vID}","${vKEY}")
+                                veracodeSandboxScan("${appProfileName}","${GIT_BRANCH}","${vID}","${vKEY}")
                             }
                         }
 
