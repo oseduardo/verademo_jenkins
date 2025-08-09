@@ -117,6 +117,13 @@ pipeline {
             when {
                 equals expected: true, actual: flagBuildSuccess
             }
+            steps{
+                // Get artifacts to scan
+                echo "[INFO] Getting artifacts to be scanned..."
+                unstash 'myVeraArtifacts'
+
+                sh 'ls -all'
+            }
             stages {
                 stage('featureX - Push Commit') {
                     when {
@@ -125,13 +132,6 @@ pipeline {
                             equals expected: 'push', actual: "$x_github_event"
                         }
                     }
-
-                    // Get artifacts to scan
-                    echo "[INFO] Getting artifacts to be scanned..."
-                    unstash 'myVeraArtifacts'
-
-                    sh 'ls -all'
-
                     parallel {
                         /********************************************
                         // inicialmente se usará estrategia con sandbox scan en push/commit
