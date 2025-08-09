@@ -3,202 +3,238 @@ boolean flagBuildSuccess = false
 @Library("veracodeGlobalSharedLibrary") _
 pipeline {
 
-  agent any
+    agent any
 
     environment {
         vID     = credentials('VID')
         vKEY     = credentials('VKEY')
         SRCCLR_API_TOKEN = credentials('SRCCLR_API_TOKEN')
-        product_name = 'Portal Pagos' //El valor de esta variable debe venir desde el repo
-        product_id = 'ppag' //El valor de esta variable debe venir desde el repo
-        appProfileName = '' //Esta variable se instancia en el stage 'Setting Up Veracode Base Components'
-        wkspSiteId = '' //Esta variable se instancia en el stage 'Setting Up Veracode Base Components'
-    }
-  triggers {
-    GenericTrigger(
-     genericHeaderVariables: [
-        [key: 'X-GitHub-Event', regexpFilter: '']
-     ],
-     genericVariables: [
-        [key: 'ref', value: '$.ref'],
-        [key: 'action', value: '$.action', defaultValue: 'null'],
-        [key: 'repo_name', value: '$.repository.name', defaultValue: 'null'],
-        [key: 'repo_full_name', value: '$.repository.full_name', defaultValue: 'null'],
-        [key: 'origin_branch_name', value: '$.pull_request.head.ref', defaultValue: 'null'],
-        [key: 'target_branch_name', value: '$.pull_request.base.ref', defaultValue: 'null']
-     ],
-     
-     causeString: 'Triggered on $ref',
-
-     token: 'mytoken123',
-     tokenCredentialId: '',
-     
-     printContributedVariables: true,
-     printPostContent: true,
-    )
-  }
-
-  stages {
-
-    //In this stage we create programatically App Profile and Workspace (SCA - ABS) for a specific repo.
-    //In a model where all admin steps are 100% automated (programatically), it's possible to call this 
-    // stage at any point when automated admin tasks are executed when creating a repo
-    stage('Setting Up Veracode Base Components'){
-        agent {
-            docker { 
-                //It usesveracode/api-signing docker image to setup HMAC authentication to invoke Veracode's REST APIs
-                image 'veracode/api-signing:latest'
-                args '-e VERACODE_API_KEY_ID=$vID -e VERACODE_API_KEY_SECRET=$vKEY'
-                reuseNode true
-            }
-        }
-        steps{
-            echo "[INFO] GIT_EVENT: $x_github_event"
-            echo "[INFO] GIT_ACTION: $action"
-            echo "[INFO] GIT_ORIGIN_BRANCH: $origin_branch_name"
-            echo "[INFO] GIT_TARGET_BRANCH: $target_branch_name"
-            echo "[INFO] GIT_COMMIT: ${GIT_COMMIT}"
-            echo "[INFO] GIT_URL: ${GIT_URL}"
-            echo "[INFO] GIT_REPO_NAME: $repo_name"
-            echo "[INFO] GIT_REPO_FULL_NAME: $repo_full_name"
-            echo ""
-
-            script{
-                //Validates if ${appProfileName} exists in platform; if not, it's created
-                veracodeCreateAppProfile("$repo_name", "$product_name", "$product_id","${vID}","${vKEY}") //App Profile naming: <product_id>_<$repo_name>
-
-                //Validates if <product_id>_<repo_name> exists in platform; if not, it's created. It returns the site_id to be used when running SCA (ABS)
-                wkspSiteID = veracodeCreateSCAWorkspace(repo_name,product_name,product_id)
-            }
-        }
+        product_name = 'Portal Pagos' // Custom Field - This value comes up from repo
+        product_id = 'ppag' // Custom Field - This value comes up from repo
+        appProfileName = '' // This variable is instantiated in stage 'Setting Up Veracode Base Components'
+        wkspSiteId = '' // This variable is instantiated in stage 'Setting Up Veracode Base Components'
+        //artifactsPath = "${WORKSPACE}/veracode-artifacts" // This folder is created dinamically in pipeline runtime and will have all artifacts to be scanned
     }
 
-    stage('Build') {
-        steps {
-            script {
-                try {
-                    echo "[INFO] Starting build process..."
-                    dir('./app') {
-                        sh 'mvn clean package'
+    triggers {
+        GenericTrigger(
+        genericHeaderVariables: [
+            [key: 'X-GitHub-Event', regexpFilter: '']
+        ],
+        genericVariables: [
+            [key: 'ref', value: '$.ref'],
+            [key: 'action', value: '$.action', defaultValue: 'null'],
+            [key: 'repo_name', value: '$.repository.name', defaultValue: 'null'],
+            [key: 'repo_full_name', value: '$.repository.full_name', defaultValue: 'null'],
+            [key: 'origin_branch_name', value: '$.pull_request.head.ref', defaultValue: 'null'],
+            [key: 'target_branch_name', value: '$.pull_request.base.ref', defaultValue: 'null']
+        ],
+        
+        causeString: 'Triggered on $ref',
+
+        token: 'mytoken123',
+        tokenCredentialId: '',
+        
+        printContributedVariables: true,
+        printPostContent: true,
+        )
+    }
+
+    stages {
+
+        //In this stage we create programatically App Profile and Workspace (SCA - ABS) for a specific repo.
+        //In a model where all admin steps are 100% automated (programatically), it's possible to call this 
+        // stage at any point when automated admin tasks are executed when creating a repo
+        stage('Setting Up Veracode Base Components'){
+            
+            agent {
+                docker { 
+                    //It usesveracode/api-signing docker image to setup HMAC authentication to invoke Veracode's REST APIs
+                    image 'veracode/api-signing:latest'
+                    args '-e VERACODE_API_KEY_ID=$vID -e VERACODE_API_KEY_SECRET=$vKEY'
+                    reuseNode true
+                }
+            }
+
+            steps{
+                echo "[INFO] GIT_EVENT: $x_github_event"
+                echo "[INFO] GIT_ACTION: $action"
+                echo "[INFO] GIT_ORIGIN_BRANCH: $origin_branch_name"
+                echo "[INFO] GIT_TARGET_BRANCH: $target_branch_name"
+                echo "[INFO] GIT_COMMIT: ${GIT_COMMIT}"
+                echo "[INFO] GIT_URL: ${GIT_URL}"
+                echo "[INFO] GIT_REPO_NAME: $repo_name"
+                echo "[INFO] GIT_REPO_FULL_NAME: $repo_full_name"
+                echo ""
+
+                script{
+                    //Validates if ${appProfileName} exists in platform; if not, it's created
+                    veracodeCreateAppProfile("$repo_name", "$product_name", "$product_id","${vID}","${vKEY}") //App Profile naming: <product_id>_<$repo_name>
+
+                    //Validates if <product_id>_<repo_name> exists in platform; if not, it's created. It returns the site_id to be used when running SCA (ABS)
+                    wkspSiteID = veracodeCreateSCAWorkspace(repo_name,product_name,product_id)
+
+                    //Creates veracode-artifacts folder to store artifacts to be scanned
+                    /*if (fileExists(artifactsPath)) {
+                        sh "rm -r ${artifactsPath}"
                     }
-                    echo "[INFO] Build process has finished."
-                    //echo "[INFO] Archiving artifacts..."
-                    //archiveArtifacts artifacts: 'app/target/verademo.war', allowEmptyArchive: false, onlyIfSuccessful: true
-                    flagBuildSuccess = true
+                    sh "mkdir ${artifactsPath}"*/
                 }
-                catch (Exception e) {
-                    unstable("${STAGE_NAME} failed!")
-                    currentBuild.result = 'FAILURE'
-                    flagBuildSuccess = false
+            }
+        }
+
+        stage('Build') {
+            steps {
+                script {
+                    try {
+                        echo "[INFO] Starting build process..."
+                        dir('./app') {
+                            sh 'mvn clean package'
+                        }
+                        echo "[INFO] Build process has finished."
+                        //echo "[INFO] Archiving artifacts..."
+                        //archiveArtifacts artifacts: 'app/target/verademo.war', allowEmptyArchive: false, onlyIfSuccessful: true
+                        sh "ls -all"
+                        flagBuildSuccess = true
+
+                        // Save build results as an artifact to be recovered when starting scans
+                        sh 'mkdir -p veracode-artifacts'
+                        sh "cp ./app/target/verademo.war veracode-artifacts"
+                        echo "[INFO] Storing build artifacts..."
+                        stash name: 'myVeraArtifacts', includes: 'veracode-artifacts/**/*'
+                    }
+                    catch (Exception e) {
+                        unstable("${STAGE_NAME} failed!")
+                        currentBuild.result = 'FAILURE'
+                        flagBuildSuccess = false
+                    }
                 }
+            }
+        }
+
+        stage('Veracode Security Tests') {
+            // Execute only if Build succeeded
+            when {
+                equals expected: true, actual: flagBuildSuccess
+            }
+            stages {
+                stage('featureX - Push Commit') {
+                    when {
+                        allOf {
+                            equals expected: 'origin/featureX', actual: "${GIT_BRANCH}"
+                            equals expected: 'push', actual: "$x_github_event"
+                        }
+                    }
+                    parallel {
+                        /********************************************
+                        // inicialmente se usará estrategia con sandbox scan en push/commit
+                        // sobre rama feature/<ticket_jira>
+                        stage('Veracode SAST - Pipeline Scan') {
+                            agent any
+                            steps {
+                                // Get artifacts to scan
+                                echo "[INFO] Getting artifacts to be scanned..."
+                                unstash 'myVeraArtifacts'
+
+                                // Launch Veracode Pipeline Scan
+                                veracodePipelineScan("${vID}","${vKEY}")
+                            }
+                        }
+                        *********************************************/
+                        stage('Veracode SAST - Sandbox Scan') {
+                            agent any
+                            environment {
+                                appProfileName = "${product_id}_${repo_name}" //App Profile naming: <product_id>_$repo_name
+                            }
+                            steps {
+                                // Get artifacts to scan
+                                echo "[INFO] Getting artifacts to be scanned..."
+                                unstash 'myVeraArtifacts'
+
+                                // Launch Veracode Sandbox Scan
+                                veracodeSandboxScan("${appProfileName}","${GIT_BRANCH}","${vID}","${vKEY}")
+                            }
+                        }
+
+                        stage('Veracode SCA - Agent-Base Scan') {
+                            agent any
+                            steps {
+                                veracodeSCA("${SRCCLR_API_TOKEN}",wkspSiteID)
+                            }
+                        }
+                    }
+                }
+
+                stage('featureX Pipeline - PR Open to dev') {
+                    when {
+                        allOf {
+                            equals expected: 'origin/featureX', actual: "${GIT_BRANCH}"
+                            equals expected: 'dev', actual: "$target_branch_name"
+                            equals expected: 'pull_request', actual: "$x_github_event"
+                            equals expected: 'opened', actual: "$action"
+                        }
+                    }
+                    parallel {
+                        stage('Veracode SAST - Sandbox Scan') {
+                            agent any
+                            environment {
+                                appProfileName = "${product_id}_${repo_name}" //App Profile naming: <product_id>_$repo_name
+                            }
+                            steps {
+                                // Get artifacts to scan
+                                echo "[INFO] Getting artifacts to be scanned..."
+                                unstash 'myVeraArtifacts'
+
+                                // Launch Veracode Sandbox Scan
+                                veracodeSandboxScan("${appProfileName}","$target_branch_name","${vID}","${vKEY}")
+                            }
+                        }
+
+                        stage('Veracode SCA - Agent-Base Scan') {
+                            agent any
+                            steps {
+                                veracodeSCA("${SRCCLR_API_TOKEN}",wkspSiteID)
+                            }
+                        }
+
+                    }
+                }
+
+                stage('dev Pipeline - PR Open to main') {
+                    when {
+                        allOf {
+                            equals expected: 'origin/dev', actual: "${GIT_BRANCH}"
+                            equals expected: 'main', actual: "$target_branch_name"
+                            equals expected: 'pull_request', actual: "$x_github_event"
+                            equals expected: 'opened', actual: "$action"
+                        }
+                    }
+                    parallel {
+                        stage('Veracode SAST - Policy Scan') {
+                            agent any
+                            environment {
+                                appProfileName = "${product_id}_${repo_name}" //App Profile naming: <product_id>_$repo_name
+                            }
+                            steps {
+                                // Get artifacts to scan
+                                echo "[INFO] Getting artifacts to be scanned..."
+                                unstash 'myVeraArtifacts'
+
+                                // Launch Veracode Policy Scan
+                                veracodePolicyScan("${appProfileName}","${vID}","${vKEY}") //Using $rep_name as default app profile name
+                            }
+                        }
+
+                        stage('Veracode SCA - Agent-Base Scan') {
+                            agent any
+                            steps {
+                                veracodeSCA("${SRCCLR_API_TOKEN}",wkspSiteID)
+                            }
+                        }
+                    }
+                }
+
             }
         }
     }
-
-    stage('Veracode Security Tests') {
-        // Execute only if Build succeeded
-        when {
-            equals expected: true, actual: flagBuildSuccess
-        }
-        stages {
-            stage('featureX - Push Commit') {
-                when {
-                    allOf {
-                        equals expected: 'origin/featureX', actual: "${GIT_BRANCH}"
-                        equals expected: 'push', actual: "$x_github_event"
-                    }
-                }
-                parallel {
-                    /********************************************
-                    // inicialmente se usará estrategia con sandbox scan en push/commit
-                    // sobre rama feature/<ticket_jira>
-                    stage('Veracode SAST - Pipeline Scan') {
-                        agent any
-                        steps {
-                            veracodePipelineScan("${vID}","${vKEY}")
-                        }
-                    }
-                    *********************************************/
-                    stage('Veracode SAST - Sandbox Scan') {
-                        agent any
-                        environment {
-                            appProfileName = "${product_id}_${repo_name}" //App Profile naming: <product_id>_$repo_name
-                        }
-                        steps {
-                            veracodeSandboxScan("${appProfileName}","${GIT_BRANCH}","${vID}","${vKEY}") //App Profile naming: <product_id>_$repo_name, Sandbox name: <GIT_BRANCH>
-                        }
-                    }
-
-                    stage('Veracode SCA - Agent-Base Scan') {
-                        agent any
-                        steps {
-                            veracodeSCA("${SRCCLR_API_TOKEN}",wkspSiteID)
-                        }
-                    }
-
-                }
-            }
-
-            stage('featureX Pipeline - PR Open to dev') {
-                when {
-                    allOf {
-                        equals expected: 'origin/featureX', actual: "${GIT_BRANCH}"
-                        equals expected: 'dev', actual: "$target_branch_name"
-                        equals expected: 'pull_request', actual: "$x_github_event"
-                        equals expected: 'opened', actual: "$action"
-                    }
-                }
-                parallel {
-                    stage('Veracode SAST - Sandbox Scan') {
-                        agent any
-                        environment {
-                            appProfileName = "${product_id}_${repo_name}" //App Profile naming: <product_id>_$repo_name
-                        }
-                        steps {
-                            veracodeSandboxScan("${appProfileName}","$target_branch_name","${vID}","${vKEY}") //App Profile naming: <product_id>_$repo_name
-                        }
-                    }
-
-                    stage('Veracode SCA - Agent-Base Scan') {
-                        agent any
-                        steps {
-                            veracodeSCA("${SRCCLR_API_TOKEN}",wkspSiteID)
-                        }
-                    }
-
-                }
-            }
-
-            stage('dev Pipeline - PR Open to main') {
-                when {
-                    allOf {
-                        equals expected: 'origin/dev', actual: "${GIT_BRANCH}"
-                        equals expected: 'main', actual: "$target_branch_name"
-                        equals expected: 'pull_request', actual: "$x_github_event"
-                        equals expected: 'opened', actual: "$action"
-                    }
-                }
-                parallel {
-                    stage('Veracode SAST - Policy Scan') {
-                        agent any
-                        environment {
-                            appProfileName = "${product_id}_${repo_name}" //App Profile naming: <product_id>_$repo_name
-                        }
-                        steps {
-                            veracodePolicyScan("${appProfileName}","${vID}","${vKEY}") //Using $rep_name as default app profile name
-                        }
-                    }
-
-                    stage('Veracode SCA - Agent-Base Scan') {
-                        agent any
-                        steps {
-                            veracodeSCA("${SRCCLR_API_TOKEN}",wkspSiteID)
-                        }
-                    }
-                }
-            }
-
-        }
-    }
-  }
 }
