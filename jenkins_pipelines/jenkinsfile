@@ -126,13 +126,11 @@ pipeline {
                         }
                     }
 
-                    script{
-                        // Get artifacts to scan
-                        echo "[INFO] Getting artifacts to be scanned..."
-                        unstash 'myVeraArtifacts'
+                    // Get artifacts to scan
+                    echo "[INFO] Getting artifacts to be scanned..."
+                    unstash 'myVeraArtifacts'
 
-                        sh 'ls -all'
-                    }
+                    sh 'ls -all'
 
                     parallel {
                         /********************************************
