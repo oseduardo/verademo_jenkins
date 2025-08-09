@@ -117,14 +117,13 @@ pipeline {
             when {
                 equals expected: true, actual: flagBuildSuccess
             }
-            steps{
+            stages {
                 // Get artifacts to scan
                 echo "[INFO] Getting artifacts to be scanned..."
                 unstash 'myVeraArtifacts'
 
-                sh 'ls -all'
-            }
-            stages {
+                sh 'ls veracode-artifacts'
+
                 stage('featureX - Push Commit') {
                     when {
                         allOf {
