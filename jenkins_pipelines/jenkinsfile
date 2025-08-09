@@ -159,7 +159,7 @@ pipeline {
                         stage('Veracode SCA - Agent-Base Scan') {
                             agent any
                             steps {
-                                veracodeSCA("${SRCCLR_API_TOKEN}",wkspSiteID)
+                                veracodeSCA(wkspSiteID)
                             }
                         }
                     }
@@ -193,7 +193,7 @@ pipeline {
                         stage('Veracode SCA - Agent-Base Scan') {
                             agent any
                             steps {
-                                veracodeSCA("${SRCCLR_API_TOKEN}",wkspSiteID)
+                                veracodeSCA(wkspSiteID)
                             }
                         }
 
@@ -221,14 +221,14 @@ pipeline {
                                 unstash 'myVeraArtifacts'
 
                                 // Launch Veracode Policy Scan
-                                veracodePolicyScan("${appProfileName}","${vID}","${vKEY}") //Using $rep_name as default app profile name
+                                veracodePolicyScan("${appProfileName}") //Using $rep_name as default app profile name
                             }
                         }
 
                         stage('Veracode SCA - Agent-Base Scan') {
                             agent any
                             steps {
-                                veracodeSCA("${SRCCLR_API_TOKEN}",wkspSiteID)
+                                veracodeSCA(wkspSiteID)
                             }
                         }
                     }
