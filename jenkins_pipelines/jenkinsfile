@@ -154,8 +154,8 @@ pipeline {
                                 veracodeSandboxScan("${appProfileName}","${GIT_BRANCH}","${artifactsPath}","${vID}","${vKEY}")
                             }
                         }
-/*
-                        stage('Veracode SCA - Agent-Base Scan') {
+
+                        /*stage('Veracode SCA - Agent-Base Scan') {
                             agent any
                             steps {
                                 veracodeSCA("${SRCCLR_API_TOKEN}",wkspSiteID)
@@ -164,8 +164,8 @@ pipeline {
 
                     }
                 }
-/*
-                stage('featureX Pipeline - PR Open to dev') {
+
+                /*stage('featureX Pipeline - PR Open to dev') {
                     when {
                         allOf {
                             equals expected: 'origin/featureX', actual: "${GIT_BRANCH}"
@@ -193,9 +193,9 @@ pipeline {
                         }
 
                     }
-                }
+                }*/
 
-                stage('dev Pipeline - PR Open to main') {
+                /*stage('dev Pipeline - PR Open to main') {
                     when {
                         allOf {
                             equals expected: 'origin/dev', actual: "${GIT_BRANCH}"
@@ -222,9 +222,9 @@ pipeline {
                             }
                         }
                     }
-                }
+                }*/
 
             }
-        }*/
+        }
     }
 }
