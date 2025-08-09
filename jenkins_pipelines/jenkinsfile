@@ -13,7 +13,6 @@ pipeline {
         product_id = 'ppag' // Custom Field - This value comes up from repo
         appProfileName = '' // This variable is instantiated in stage 'Setting Up Veracode Base Components'
         wkspSiteId = '' // This variable is instantiated in stage 'Setting Up Veracode Base Components'
-        //artifactsPath = "${WORKSPACE}/veracode-artifacts" // This folder is created dinamically in pipeline runtime and will have all artifacts to be scanned
     }
 
     triggers {
@@ -73,12 +72,6 @@ pipeline {
 
                     //Validates if <product_id>_<repo_name> exists in platform; if not, it's created. It returns the site_id to be used when running SCA (ABS)
                     wkspSiteID = veracodeCreateSCAWorkspace(repo_name,product_name,product_id)
-
-                    //Creates veracode-artifacts folder to store artifacts to be scanned
-                    /*if (fileExists(artifactsPath)) {
-                        sh "rm -r ${artifactsPath}"
-                    }
-                    sh "mkdir ${artifactsPath}"*/
                 }
             }
         }
@@ -162,10 +155,18 @@ pipeline {
                                 veracodeSCA(wkspSiteID)
                             }
                         }
+
+                        stage('Veracode IaC') {
+                            agent any
+                            steps {
+                                veracodeIaCScan()
+                            }
+                        }
+                        
                     }
                 }
 
-                stage('featureX Pipeline - PR Open to dev') {
+                /*stage('featureX Pipeline - PR Open to dev') {
                     when {
                         allOf {
                             equals expected: 'origin/featureX', actual: "${GIT_BRANCH}"
@@ -198,9 +199,9 @@ pipeline {
                         }
 
                     }
-                }
+                }*/
 
-                stage('dev Pipeline - PR Open to main') {
+                /*stage('dev Pipeline - PR Open to main') {
                     when {
                         allOf {
                             equals expected: 'origin/dev', actual: "${GIT_BRANCH}"
@@ -232,7 +233,7 @@ pipeline {
                             }
                         }
                     }
-                }
+                }*/
 
             }
         }
