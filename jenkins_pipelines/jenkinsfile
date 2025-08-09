@@ -132,6 +132,11 @@ pipeline {
                         stage('Veracode SAST - Pipeline Scan') {
                             agent any
                             steps {
+                                // Get artifacts to scan
+                                echo "[INFO] Getting artifacts to be scanned..."
+                                unstash 'myVeraArtifacts'
+
+                                // Launch Veracode Pipeline Scan
                                 veracodePipelineScan("${vID}","${vKEY}")
                             }
                         }
@@ -151,17 +156,16 @@ pipeline {
                             }
                         }
 
-                        /*stage('Veracode SCA - Agent-Base Scan') {
+                        stage('Veracode SCA - Agent-Base Scan') {
                             agent any
                             steps {
                                 veracodeSCA("${SRCCLR_API_TOKEN}",wkspSiteID)
                             }
-                        }*/
-
+                        }
                     }
                 }
 
-                /*stage('featureX Pipeline - PR Open to dev') {
+                stage('featureX Pipeline - PR Open to dev') {
                     when {
                         allOf {
                             equals expected: 'origin/featureX', actual: "${GIT_BRANCH}"
@@ -177,7 +181,12 @@ pipeline {
                                 appProfileName = "${product_id}_${repo_name}" //App Profile naming: <product_id>_$repo_name
                             }
                             steps {
-                                veracodeSandboxScan("${appProfileName}","$target_branch_name","${artifactsPath}","${vID}","${vKEY}")
+                                // Get artifacts to scan
+                                echo "[INFO] Getting artifacts to be scanned..."
+                                unstash 'myVeraArtifacts'
+
+                                // Launch Veracode Sandbox Scan
+                                veracodeSandboxScan("${appProfileName}","$target_branch_name","${vID}","${vKEY}")
                             }
                         }
 
@@ -189,9 +198,9 @@ pipeline {
                         }
 
                     }
-                }*/
+                }
 
-                /*stage('dev Pipeline - PR Open to main') {
+                stage('dev Pipeline - PR Open to main') {
                     when {
                         allOf {
                             equals expected: 'origin/dev', actual: "${GIT_BRANCH}"
@@ -207,7 +216,12 @@ pipeline {
                                 appProfileName = "${product_id}_${repo_name}" //App Profile naming: <product_id>_$repo_name
                             }
                             steps {
-                                veracodePolicyScan("${appProfileName}","${artifactsPath}","${vID}","${vKEY}") //Using $rep_name as default app profile name
+                                // Get artifacts to scan
+                                echo "[INFO] Getting artifacts to be scanned..."
+                                unstash 'myVeraArtifacts'
+
+                                // Launch Veracode Policy Scan
+                                veracodePolicyScan("${appProfileName}","${vID}","${vKEY}") //Using $rep_name as default app profile name
                             }
                         }
 
@@ -218,7 +232,7 @@ pipeline {
                             }
                         }
                     }
-                }*/
+                }
 
             }
         }
