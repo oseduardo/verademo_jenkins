@@ -152,7 +152,7 @@ pipeline {
                                 unstash 'myVeraArtifacts'
 
                                 // Launch Veracode Sandbox Scan
-                                veracodeSandboxScan("${appProfileName}","${GIT_BRANCH}","${vID}","${vKEY}")
+                                veracodeSandboxScan("${appProfileName}","${GIT_BRANCH}")
                             }
                         }
 
@@ -186,7 +186,7 @@ pipeline {
                                 unstash 'myVeraArtifacts'
 
                                 // Launch Veracode Sandbox Scan
-                                veracodeSandboxScan("${appProfileName}","$target_branch_name","${vID}","${vKEY}")
+                                veracodeSandboxScan("${appProfileName}","$target_branch_name")
                             }
                         }
 
