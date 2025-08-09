@@ -126,10 +126,6 @@ pipeline {
                         }
                     }
                     parallel {
-                        // Get artifacts to scan
-                        echo "[INFO] Getting artifacts to be scanned..."
-                        unstash 'myVeraArtifacts'
-                        sh 'ls veracode-artifacts'
                         /********************************************
                         // inicialmente se usará estrategia con sandbox scan en push/commit
                         // sobre rama feature/<ticket_jira>
@@ -146,6 +142,12 @@ pipeline {
                                 appProfileName = "${product_id}_${repo_name}" //App Profile naming: <product_id>_$repo_name
                             }
                             steps {
+                                // Get artifacts to scan
+                                echo "[INFO] Getting artifacts to be scanned..."
+                                unstash 'myVeraArtifacts'
+                                sh 'ls veracode-artifacts'
+
+                                // Launch Veracode Sandbox Scan
                                 veracodeSandboxScan("${appProfileName}","${GIT_BRANCH}","${artifactsPath}","${vID}","${vKEY}")
                             }
                         }
