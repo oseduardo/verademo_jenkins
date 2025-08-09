@@ -3,17 +3,7 @@ boolean flagBuildSuccess = false
 @Library("veracodeGlobalSharedLibrary") _
 pipeline {
 
-    //agent any
-
-    agent {
-        docker { 
-            //It usesveracode/api-signing docker image to setup HMAC authentication to invoke Veracode's REST APIs
-            image 'veracode/api-signing:latest'
-            //args "-e VERACODE_API_KEY_ID=$credentials('VID') -e VERACODE_API_KEY_SECRET=$credentials('VKEY')"
-            //reuseNode true
-        }
-    }
-
+    agent any
 
     environment {
         vID     = credentials('VID')
@@ -23,7 +13,7 @@ pipeline {
         product_id = 'ppag' // Custom Field - This value comes up from repo
         appProfileName = '' // This variable is instantiated in stage 'Setting Up Veracode Base Components'
         wkspSiteId = '' // This variable is instantiated in stage 'Setting Up Veracode Base Components'
-        artifactsPath = "${WORKSPACE}/veracode-artifacts" // This folder is created dinamically in pipeline runtime and will have all artifacts to be scanned
+        //artifactsPath = "${WORKSPACE}/veracode-artifacts" // This folder is created dinamically in pipeline runtime and will have all artifacts to be scanned
     }
 
     triggers {
@@ -56,7 +46,7 @@ pipeline {
         //In a model where all admin steps are 100% automated (programatically), it's possible to call this 
         // stage at any point when automated admin tasks are executed when creating a repo
         stage('Setting Up Veracode Base Components'){
-            /**
+            
             agent {
                 docker { 
                     //It usesveracode/api-signing docker image to setup HMAC authentication to invoke Veracode's REST APIs
@@ -64,7 +54,7 @@ pipeline {
                     args '-e VERACODE_API_KEY_ID=$vID -e VERACODE_API_KEY_SECRET=$vKEY'
                     reuseNode true
                 }
-            }**/
+            }
 
             steps{
                 echo "[INFO] GIT_EVENT: $x_github_event"
@@ -78,10 +68,6 @@ pipeline {
                 echo ""
 
                 script{
-
-                    sh "export VERACODE_API_KEY_ID=${vID}"
-                    sh "export VERACODE_API_KEY_SECRET=${vKEY}"
-
                     //Validates if ${appProfileName} exists in platform; if not, it's created
                     veracodeCreateAppProfile("$repo_name", "$product_name", "$product_id","${vID}","${vKEY}") //App Profile naming: <product_id>_<$repo_name>
 
@@ -89,10 +75,10 @@ pipeline {
                     wkspSiteID = veracodeCreateSCAWorkspace(repo_name,product_name,product_id)
 
                     //Creates veracode-artifacts folder to store artifacts to be scanned
-                    if (fileExists(artifactsPath)) {
+                    /*if (fileExists(artifactsPath)) {
                         sh "rm -r ${artifactsPath}"
                     }
-                    sh "mkdir ${artifactsPath}"
+                    sh "mkdir ${artifactsPath}"*/
                 }
             }
         }
@@ -108,9 +94,14 @@ pipeline {
                         echo "[INFO] Build process has finished."
                         //echo "[INFO] Archiving artifacts..."
                         //archiveArtifacts artifacts: 'app/target/verademo.war', allowEmptyArchive: false, onlyIfSuccessful: true
-                        sh "mv ./app/target/verademo.war ${artifactsPath}"
                         sh "ls -all"
                         flagBuildSuccess = true
+
+                        // Save build results as an artifact to be recovered when starting scans
+                        sh 'mkdir -p veracode-artifacts'
+                        sh "cp ./app/target/verademo.war veracode-artifacts"
+                        echo "[INFO] Storing build artifacts..."
+                        stash name: 'myVeraArtifacts', includes: 'veracode-artifacts/**/*'
                     }
                     catch (Exception e) {
                         unstable("${STAGE_NAME} failed!")
@@ -120,7 +111,7 @@ pipeline {
                 }
             }
         }
-/*
+
         stage('Veracode Security Tests') {
             // Execute only if Build succeeded
             when {
@@ -134,7 +125,16 @@ pipeline {
                             equals expected: 'push', actual: "$x_github_event"
                         }
                     }
-                    parallel {*/
+
+                    script{
+                        // Get artifacts to scan
+                        echo "[INFO] Getting artifacts to be scanned..."
+                        unstash 'myVeraArtifacts'
+
+                        sh 'ls -all'
+                    }
+
+                    parallel {
                         /********************************************
                         // inicialmente se usará estrategia con sandbox scan en push/commit
                         // sobre rama feature/<ticket_jira>
@@ -145,7 +145,7 @@ pipeline {
                             }
                         }
                         *********************************************/
-/*                        stage('Veracode SAST - Sandbox Scan') {
+                        stage('Veracode SAST - Sandbox Scan') {
                             agent any
                             environment {
                                 appProfileName = "${product_id}_${repo_name}" //App Profile naming: <product_id>_$repo_name
@@ -154,17 +154,17 @@ pipeline {
                                 veracodeSandboxScan("${appProfileName}","${GIT_BRANCH}","${artifactsPath}","${vID}","${vKEY}")
                             }
                         }
-
+/*
                         stage('Veracode SCA - Agent-Base Scan') {
                             agent any
                             steps {
                                 veracodeSCA("${SRCCLR_API_TOKEN}",wkspSiteID)
                             }
-                        }
+                        }*/
 
                     }
                 }
-
+/*
                 stage('featureX Pipeline - PR Open to dev') {
                     when {
                         allOf {
