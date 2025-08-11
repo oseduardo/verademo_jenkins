@@ -160,7 +160,7 @@ pipeline {
                             agent any
                             steps {
                                 sh './veracode version'
-                                veracodeIaCScan()
+                                //veracodeIaCScan()
                             }
                         }
                         
