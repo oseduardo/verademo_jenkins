@@ -159,6 +159,7 @@ pipeline {
                         stage('Veracode IaC') {
                             agent any
                             steps {
+                                sh './veracode version'
                                 veracodeIaCScan()
                             }
                         }
