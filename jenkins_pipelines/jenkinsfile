@@ -76,74 +76,6 @@ pipeline {
             }
         }
 
-        // This stage builds the app to generate artifacts to be scanned during CI pipeline
-        stage('Build App') {
-            // Build App process should not run when closing a PR on main branch
-            when{
-                allOf{
-                    not { equals expected: 'main', actual: "$target_branch_name" }
-//                    not { equals expected: 'pull_request', actual: "$x_github_event" }
-                    not { equals expected: 'closed', actual: "$action" }
-                }
-            }
-            steps {
-                script {
-                    try {
-                        echo "[INFO] Starting build process..."
-                        dir('./app') {
-                            sh 'mvn clean package'
-                        }
-                        echo "[INFO] Build process has finished."
-                        //echo "[INFO] Archiving artifacts..."
-                        //archiveArtifacts artifacts: 'app/target/verademo.war', allowEmptyArchive: false, onlyIfSuccessful: true
-                        sh "ls -all"
-                        flagBuildSuccess = true
-
-                        // Save build results as an artifact to be recovered when starting scans
-                        sh 'mkdir -p veracode-artifacts'
-                        sh "cp ./app/target/verademo.war veracode-artifacts"
-                        echo "[INFO] Storing build artifacts..."
-                        stash name: 'myVeraArtifacts', includes: 'veracode-artifacts/**/*'
-                    }
-                    catch (Exception e) {
-                        unstable("${STAGE_NAME} failed!")
-                        currentBuild.result = 'FAILURE'
-                        flagBuildSuccess = false
-                    }
-                }
-            }
-        }
-
-        // This stage builds the container image to be scanned during CD pipeline
-        stage('Build Container Image'){
-            // Build process is run when closing the PR on main branch
-            when{
-                allOf{
-                    equals expected: 'main', actual: "$target_branch_name"
-                    equals expected: 'pull_request', actual: "$x_github_event"
-                    equals expected: 'closed', actual: "$action"
-                }
-            }
-            steps {
-                script {
-                    try {
-                        echo "[INFO] Starting image build process..."
-                        sh 'docker builder prune -a -f'
-                        sh 'docker pull mariadb:10.6.2'
-                        sh 'docker build --no-cache -t verademo .'
-                        sh 'docker inspect verademo:latest'
-                        echo "[INFO] Build image process has finished."
-                        flagBuildSuccess = true
-                    }
-                    catch (Exception e) {
-                        unstable("${STAGE_NAME} failed!")
-                        currentBuild.result = 'FAILURE'
-                        flagBuildSuccess = false
-                    }
-                }
-            }
-        }
-
         // This Stage runs scans related to CI phase during SDLC
         // SAST, SCA & IaC scans
         stage('Veracode Security Tests - Continous Integration Pipeline') {
@@ -152,6 +84,50 @@ pipeline {
                 equals expected: true, actual: flagBuildSuccess
             }
             stages {
+
+
+                // This stage builds the app to generate artifacts to be scanned during CI pipeline
+                stage('Build App') {
+                    // Build App process should not run when closing a PR on main branch
+                    when{
+                        allOf{
+                            not { equals expected: 'main', actual: "$target_branch_name" }
+        //                    not { equals expected: 'pull_request', actual: "$x_github_event" }
+                            not { equals expected: 'closed', actual: "$action" }
+                        }
+                    }
+                    steps {
+                        script {
+                            try {
+                                flagBuildSuccess = false
+                                echo "[INFO] Starting build process..."
+                                dir('./app') {
+                                    sh 'mvn clean package'
+                                }
+                                echo "[INFO] Build process has finished."
+                                //echo "[INFO] Archiving artifacts..."
+                                //archiveArtifacts artifacts: 'app/target/verademo.war', allowEmptyArchive: false, onlyIfSuccessful: true
+                                sh "ls -all"
+                                flagBuildSuccess = true
+
+                                // Save build results as an artifact to be recovered when starting scans
+                                sh 'mkdir -p veracode-artifacts'
+                                sh "cp ./app/target/verademo.war veracode-artifacts"
+                                echo "[INFO] Storing build artifacts..."
+                                stash name: 'myVeraArtifacts', includes: 'veracode-artifacts/**/*'
+                            }
+                            catch (Exception e) {
+                                unstable("${STAGE_NAME} failed!")
+                                currentBuild.result = 'FAILURE'
+                                flagBuildSuccess = false
+                            }
+                        }
+                    }
+                }
+
+
+
+
                 stage('featureX - Push Commit') {
                     when {
                         allOf {
@@ -292,7 +268,7 @@ pipeline {
 
         // This Stage runs scans related to CD phase during SDLC
         // Containers Scan
-        stage('Veracode Security Tests - Continous Delivery Pipeline'){
+        stage('Veracode Security Tests - Continuous Delivery Pipeline'){
             // Execute only if Build succeeded
             // Build process is run when closing the PR on main branch
             when{
@@ -300,12 +276,44 @@ pipeline {
                     equals expected: 'main', actual: "$target_branch_name"
                     equals expected: 'pull_request', actual: "$x_github_event"
                     equals expected: 'closed', actual: "$action"
-                    equals expected: true, actual: flagBuildSuccess
                 }
             }
             stages{
+                // This stage builds the container image to be scanned during CD pipeline
+                stage('Build Container Image'){
+                    // Build process is run when closing the PR on main branch
+                    when{
+                        allOf{
+                            equals expected: 'main', actual: "$target_branch_name"
+                            equals expected: 'pull_request', actual: "$x_github_event"
+                            equals expected: 'closed', actual: "$action"
+                        }
+                    }
+                    steps {
+                        script {
+                            try {
+                                echo "[INFO] Starting image build process..."
+                                sh 'docker builder prune -a -f'
+                                sh 'docker pull mariadb:10.6.2'
+                                sh 'docker build --no-cache -t verademo .'
+                                sh 'docker inspect verademo:latest'
+                                echo "[INFO] Build image process has finished."
+                                flagBuildSuccess = true
+                            }
+                            catch (Exception e) {
+                                unstable("${STAGE_NAME} failed!")
+                                currentBuild.result = 'FAILURE'
+                                flagBuildSuccess = false
+                            }
+                        }
+                    }
+                }
+                
                 stage('Veracode Container Scan') {
                     agent any
+                    when{
+                        equals expected: true, actual: flagBuildSuccess
+                    }
                     steps {
                         veracodeContainerScan("verademo:latest")
                     }
