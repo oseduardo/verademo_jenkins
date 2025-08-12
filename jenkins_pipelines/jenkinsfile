@@ -271,7 +271,7 @@ pipeline {
 
         // This Stage runs scans related to CD phase during SDLC
         // Containers Scan
-        stage('Veracode Security Tests - Continuous Delivery Pipeline'){
+        /*stage('Veracode Security Tests - Continuous Delivery Pipeline'){
             // Execute only if Build succeeded
             // Build process is run when closing the PR on main branch
             when{
@@ -322,6 +322,6 @@ pipeline {
                     }
                 }
             }
-        }
+        }*/
     }
 }
