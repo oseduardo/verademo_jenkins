@@ -76,7 +76,8 @@ pipeline {
             }
         }
 
-        stage('Build') {
+        // This stage builds the app to generate artifacts to be scanned during CI pipeline
+        stage('Build App') {
             steps {
                 script {
                     try {
@@ -105,7 +106,36 @@ pipeline {
             }
         }
 
-        stage('Veracode Security Tests') {
+        // This stage builds the container image to be scanned during CD pipeline
+        stage('Build Container Image'){
+            // Build process is run when closing the PR on main branch
+            /*when{
+                allOf{
+                    equals expected: 'main', actual: "$target_branch_name"
+                    equals expected: 'pull_request', actual: "$x_github_event"
+                    equals expected: 'closed', actual: "$action"
+                }
+            }*/
+            steps {
+                script {
+                    try {
+                        echo "[INFO] Starting image build process..."
+                        sh 'docker --version'
+                        echo "[INFO] Build image process has finished."
+                        flagBuildSuccess = true
+                    }
+                    catch (Exception e) {
+                        unstable("${STAGE_NAME} failed!")
+                        currentBuild.result = 'FAILURE'
+                        flagBuildSuccess = false
+                    }
+                }
+            }
+        }
+
+        // This Stage runs scans related to CI phase during SDLC
+        // SAST, SCA & IaC scans
+        stage('Veracode Security Tests - Continous Integration Pipeline') {
             // Execute only if Build succeeded
             when {
                 equals expected: true, actual: flagBuildSuccess
@@ -134,7 +164,7 @@ pipeline {
                             }
                         }
                         *********************************************/
-                        stage('Veracode SAST - Sandbox Scan') {
+                        /*stage('Veracode SAST - Sandbox Scan') {
                             agent any
                             environment {
                                 appProfileName = "${product_id}_${repo_name}" //App Profile naming: <product_id>_$repo_name
@@ -147,25 +177,25 @@ pipeline {
                                 // Launch Veracode Sandbox Scan
                                 veracodeSandboxScan("${appProfileName}","${GIT_BRANCH}")
                             }
-                        }
+                        }*/
 
-                        stage('Veracode SCA - Agent-Base Scan') {
+                        /*stage('Veracode SCA - Agent-Base Scan') {
                             agent any
                             steps {
                                 veracodeSCA(wkspSiteID)
                             }
-                        }
+                        }*/
 
-                        stage('Veracode IaC') {
+                        /*stage('Veracode IaC') {
                             agent any
                             steps {
                                 veracodeIaCScan()
                             }
-                        }
+                        }*/
                     }
                 }
 
-                stage('featureX Pipeline - PR Open to dev') {
+                /*stage('featureX Pipeline - PR Open to dev') {
                     when {
                         allOf {
                             equals expected: 'origin/featureX', actual: "${GIT_BRANCH}"
@@ -204,9 +234,9 @@ pipeline {
                             }
                         }
                     }
-                }
+                }*/
 
-                stage('dev Pipeline - PR Open to main') {
+                /*stage('dev Pipeline - PR Open to main') {
                     when {
                         allOf {
                             equals expected: 'origin/dev', actual: "${GIT_BRANCH}"
@@ -245,8 +275,14 @@ pipeline {
                             }
                         }
                     }
-                }
+                }*/
             }
         }
+
+        // This Stage runs scans related to CD phase during SDLC
+        // Containers Scan
+        /*stage('Veracode Security Tests - Continous Delivery Pipeline'){
+
+        }*/
     }
 }
