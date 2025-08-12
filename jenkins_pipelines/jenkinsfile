@@ -17,25 +17,25 @@ pipeline {
 
     triggers {
         GenericTrigger(
-        genericHeaderVariables: [
-            [key: 'X-GitHub-Event', regexpFilter: '']
-        ],
-        genericVariables: [
-            [key: 'ref', value: '$.ref'],
-            [key: 'action', value: '$.action', defaultValue: 'null'],
-            [key: 'repo_name', value: '$.repository.name', defaultValue: 'null'],
-            [key: 'repo_full_name', value: '$.repository.full_name', defaultValue: 'null'],
-            [key: 'origin_branch_name', value: '$.pull_request.head.ref', defaultValue: 'null'],
-            [key: 'target_branch_name', value: '$.pull_request.base.ref', defaultValue: 'null']
-        ],
-        
-        causeString: 'Triggered on $ref',
+            genericHeaderVariables: [
+                [key: 'X-GitHub-Event', regexpFilter: '']
+            ],
+            genericVariables: [
+                [key: 'ref', value: '$.ref'],
+                [key: 'action', value: '$.action', defaultValue: 'null'],
+                [key: 'repo_name', value: '$.repository.name', defaultValue: 'null'],
+                [key: 'repo_full_name', value: '$.repository.full_name', defaultValue: 'null'],
+                [key: 'origin_branch_name', value: '$.pull_request.head.ref', defaultValue: 'null'],
+                [key: 'target_branch_name', value: '$.pull_request.base.ref', defaultValue: 'null']
+            ],
+            
+            causeString: 'Triggered on $ref',
 
-        token: 'mytoken123',
-        tokenCredentialId: '',
-        
-        printContributedVariables: true,
-        printPostContent: true,
+            token: 'mytoken123',
+            tokenCredentialId: '',
+            
+            printContributedVariables: true,
+            printPostContent: true,
         )
     }
 
@@ -45,7 +45,9 @@ pipeline {
         //In a model where all admin steps are 100% automated (programatically), it's possible to call this 
         // stage at any point when automated admin tasks are executed when creating a repo
         stage('Setting Up Veracode Base Components'){
-            
+            when{
+                not { equals expected: 'synchronize', actual: "$action" }
+            }
             agent {
                 docker { 
                     //It usesveracode/api-signing docker image to setup HMAC authentication to invoke Veracode's REST APIs
@@ -99,7 +101,6 @@ pipeline {
                     steps {
                         script {
                             try {
-                                flagBuildSuccess = false
                                 echo "[INFO] Starting build process..."
                                 dir('./app') {
                                     sh 'mvn clean package'
