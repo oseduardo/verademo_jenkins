@@ -120,7 +120,9 @@ pipeline {
                 script {
                     try {
                         echo "[INFO] Starting image build process..."
-                        sh 'docker --version'
+                        sh 'docker builder prune -a'
+                        sh 'docker pull mariadb:10.6.2'
+                        sh 'docker build --no-cache -t verademo .'
                         echo "[INFO] Build image process has finished."
                         flagBuildSuccess = true
                     }
