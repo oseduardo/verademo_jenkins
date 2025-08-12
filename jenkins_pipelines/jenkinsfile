@@ -123,6 +123,7 @@ pipeline {
                         sh 'docker builder prune -a -f'
                         sh 'docker pull mariadb:10.6.2'
                         sh 'docker build --no-cache -t verademo .'
+                        sh 'docker inspect verademo:latest'
                         echo "[INFO] Build image process has finished."
                         flagBuildSuccess = true
                     }
