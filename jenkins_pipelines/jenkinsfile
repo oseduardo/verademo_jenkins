@@ -83,7 +83,6 @@ pipeline {
                     // Build App process should not run when closing a PR on main branch
                     when{
                         allOf{
-                            not { equals expected: 'main', actual: "$target_branch_name" }
                             not { equals expected: 'closed', actual: "$action" }
                         }
                     }
