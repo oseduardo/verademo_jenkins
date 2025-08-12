@@ -17,149 +17,114 @@ pipeline {
 
     triggers {
         GenericTrigger(
-        genericHeaderVariables: [
-            [key: 'X-GitHub-Event', regexpFilter: '']
-        ],
-        genericVariables: [
-            [key: 'ref', value: '$.ref'],
-            [key: 'action', value: '$.action', defaultValue: 'null'],
-            [key: 'repo_name', value: '$.repository.name', defaultValue: 'null'],
-            [key: 'repo_full_name', value: '$.repository.full_name', defaultValue: 'null'],
-            [key: 'origin_branch_name', value: '$.pull_request.head.ref', defaultValue: 'null'],
-            [key: 'target_branch_name', value: '$.pull_request.base.ref', defaultValue: 'null']
-        ],
-        
-        causeString: 'Triggered on $ref',
+            genericHeaderVariables: [
+                [key: 'X-GitHub-Event', regexpFilter: '']
+            ],
+            genericVariables: [
+                [key: 'ref', value: '$.ref'],
+                [key: 'action', value: '$.action', defaultValue: 'null', regexpFilter: '^(null|opened|closed)$'],
+                [key: 'repo_name', value: '$.repository.name', defaultValue: 'null'],
+                [key: 'repo_full_name', value: '$.repository.full_name', defaultValue: 'null'],
+                [key: 'origin_branch_name', value: '$.pull_request.head.ref', defaultValue: 'null'],
+                [key: 'target_branch_name', value: '$.pull_request.base.ref', defaultValue: 'null']
+            ],
+            
+            causeString: 'Triggered on $ref',
 
-        token: 'mytoken123',
-        tokenCredentialId: '',
-        
-        printContributedVariables: true,
-        printPostContent: true,
+            token: 'mytoken123',
+            tokenCredentialId: '',
+            
+            printContributedVariables: true,
+            printPostContent: true,
         )
     }
 
     stages {
-
-        //In this stage we create programatically App Profile and Workspace (SCA - ABS) for a specific repo.
-        //In a model where all admin steps are 100% automated (programatically), it's possible to call this 
-        // stage at any point when automated admin tasks are executed when creating a repo
-        stage('Setting Up Veracode Base Components'){
-            
-            agent {
-                docker { 
-                    //It usesveracode/api-signing docker image to setup HMAC authentication to invoke Veracode's REST APIs
-                    image 'veracode/api-signing:latest'
-                    args '-e VERACODE_API_KEY_ID=$vID -e VERACODE_API_KEY_SECRET=$vKEY'
-                    reuseNode true
-                }
-            }
-
-            steps{
-                echo "[INFO] GIT_EVENT: $x_github_event"
-                echo "[INFO] GIT_ACTION: $action"
-                echo "[INFO] GIT_ORIGIN_BRANCH: $origin_branch_name"
-                echo "[INFO] GIT_TARGET_BRANCH: $target_branch_name"
-                echo "[INFO] GIT_COMMIT: ${GIT_COMMIT}"
-                echo "[INFO] GIT_URL: ${GIT_URL}"
-                echo "[INFO] GIT_REPO_NAME: $repo_name"
-                echo "[INFO] GIT_REPO_FULL_NAME: $repo_full_name"
-                echo ""
-
-                script{
-                    //Validates if ${appProfileName} exists in platform; if not, it's created
-                    veracodeCreateAppProfile("$repo_name", "$product_name", "$product_id","${vID}","${vKEY}") //App Profile naming: <product_id>_<$repo_name>
-
-                    //Validates if <product_id>_<repo_name> exists in platform; if not, it's created. It returns the site_id to be used when running SCA (ABS)
-                    wkspSiteID = veracodeCreateSCAWorkspace(repo_name,product_name,product_id)
-                }
-            }
-        }
-
-        // This stage builds the app to generate artifacts to be scanned during CI pipeline
-        stage('Build App') {
-            // Build App process should not run when closing a PR on main branch
-            when{
-                allOf{
-                    not { equals expected: 'main', actual: "$target_branch_name" }
-                    not { equals expected: 'pull_request', actual: "$x_github_event" }
-                    not { equals expected: 'closed', actual: "$action" }
-                }
-            }
-            steps {
-                script {
-                    try {
-                        echo "[INFO] Starting build process..."
-                        dir('./app') {
-                            sh 'mvn clean package'
-                        }
-                        echo "[INFO] Build process has finished."
-                        //echo "[INFO] Archiving artifacts..."
-                        //archiveArtifacts artifacts: 'app/target/verademo.war', allowEmptyArchive: false, onlyIfSuccessful: true
-                        sh "ls -all"
-                        flagBuildSuccess = true
-
-                        // Save build results as an artifact to be recovered when starting scans
-                        sh 'mkdir -p veracode-artifacts'
-                        sh "cp ./app/target/verademo.war veracode-artifacts"
-                        echo "[INFO] Storing build artifacts..."
-                        stash name: 'myVeraArtifacts', includes: 'veracode-artifacts/**/*'
-                    }
-                    catch (Exception e) {
-                        unstable("${STAGE_NAME} failed!")
-                        currentBuild.result = 'FAILURE'
-                        flagBuildSuccess = false
-                    }
-                }
-            }
-        }
-
-        // This stage builds the container image to be scanned during CD pipeline
-        stage('Build Container Image'){
-            // Build process is run when closing the PR on main branch
-            when{
-                allOf{
-                    equals expected: 'main', actual: "$target_branch_name"
-                    equals expected: 'pull_request', actual: "$x_github_event"
-                    equals expected: 'closed', actual: "$action"
-                }
-            }
-            steps {
-                script {
-                    try {
-                        echo "[INFO] Starting image build process..."
-                        sh 'docker builder prune -a -f'
-                        sh 'docker pull mariadb:10.6.2'
-                        sh 'docker build --no-cache -t verademo .'
-                        sh 'docker inspect verademo:latest'
-                        echo "[INFO] Build image process has finished."
-                        flagBuildSuccess = true
-                    }
-                    catch (Exception e) {
-                        unstable("${STAGE_NAME} failed!")
-                        currentBuild.result = 'FAILURE'
-                        flagBuildSuccess = false
-                    }
-                }
-            }
-        }
-
         // This Stage runs scans related to CI phase during SDLC
         // SAST, SCA & IaC scans
-//        stage('Veracode Security Tests - Continous Integration Pipeline') {
-            // Execute only if Build succeeded
-//            when {
-//                equals expected: true, actual: flagBuildSuccess
-//            }
-//            stages {
-//                stage('featureX - Push Commit') {
-//                    when {
-//                        allOf {
-//                            equals expected: 'origin/featureX', actual: "${GIT_BRANCH}"
-//                            equals expected: 'push', actual: "$x_github_event"
-//                        }
-//                    }
-//                    parallel {
+        stage('Veracode Security Tests - Continous Integration Pipeline') {
+            stages {
+                //In this stage we create programatically App Profile and Workspace (SCA - ABS) for a specific repo.
+                //In a model where all admin steps are 100% automated (programatically), it's possible to call this 
+                // stage at any point when automated admin tasks are executed when creating a repo
+                stage('Setting Up Veracode Base Components'){
+                    agent {
+                        docker { 
+                            //It usesveracode/api-signing docker image to setup HMAC authentication to invoke Veracode's REST APIs
+                            image 'veracode/api-signing:latest'
+                            args '-e VERACODE_API_KEY_ID=$vID -e VERACODE_API_KEY_SECRET=$vKEY'
+                            reuseNode true
+                        }
+                    }
+
+                    steps{
+                        echo "[INFO] GIT_EVENT: $x_github_event"
+                        echo "[INFO] GIT_ACTION: $action"
+                        echo "[INFO] GIT_ORIGIN_BRANCH: $origin_branch_name"
+                        echo "[INFO] GIT_TARGET_BRANCH: $target_branch_name"
+                        echo "[INFO] GIT_COMMIT: ${GIT_COMMIT}"
+                        echo "[INFO] GIT_URL: ${GIT_URL}"
+                        echo "[INFO] GIT_REPO_NAME: $repo_name"
+                        echo "[INFO] GIT_REPO_FULL_NAME: $repo_full_name"
+                        echo ""
+
+                        script{
+                            //Validates if ${appProfileName} exists in platform; if not, it's created
+                            veracodeCreateAppProfile("$repo_name", "$product_name", "$product_id","${vID}","${vKEY}") //App Profile naming: <product_id>_<$repo_name>
+
+                            //Validates if <product_id>_<repo_name> exists in platform; if not, it's created. It returns the site_id to be used when running SCA (ABS)
+                            wkspSiteID = veracodeCreateSCAWorkspace(repo_name,product_name,product_id)
+                        }
+                    }
+                }
+
+                // This stage builds the app to generate artifacts to be scanned during CI pipeline
+                stage('Build App') {
+                    // Build App process should not run when closing a PR on main branch
+                    when{
+                        allOf{
+                            not { equals expected: 'main', actual: "$target_branch_name" }
+                            not { equals expected: 'closed', actual: "$action" }
+                        }
+                    }
+                    steps {
+                        script {
+                            try {
+                                echo "[INFO] Starting build process..."
+                                dir('./app') {
+                                    sh 'mvn clean package'
+                                }
+                                echo "[INFO] Build process has finished."
+                                //echo "[INFO] Archiving artifacts..."
+                                //archiveArtifacts artifacts: 'app/target/verademo.war', allowEmptyArchive: false, onlyIfSuccessful: true
+                                sh "ls -all"
+                                flagBuildSuccess = true
+
+                                // Save build results as an artifact to be recovered when starting scans
+                                sh 'mkdir -p veracode-artifacts'
+                                sh "cp ./app/target/verademo.war veracode-artifacts"
+                                echo "[INFO] Storing build artifacts..."
+                                stash name: 'myVeraArtifacts', includes: 'veracode-artifacts/**/*'
+                            }
+                            catch (Exception e) {
+                                unstable("${STAGE_NAME} failed!")
+                                currentBuild.result = 'FAILURE'
+                                flagBuildSuccess = false
+                            }
+                        }
+                    }
+                }
+
+                // This stage runs scans when a Push/Commit event to a feature branch
+                stage('featureX - Push Commit') {
+                    when {
+                        allOf {
+                            equals expected: 'origin/featureX', actual: "${GIT_BRANCH}"
+                            equals expected: 'push', actual: "$x_github_event"
+                            equals expected: true, actual: flagBuildSuccess
+                        }
+                    }
+                    parallel {
                         /********************************************
                         // inicialmente se usará estrategia con sandbox scan en push/commit
                         // sobre rama feature/<ticket_jira>
@@ -175,7 +140,7 @@ pipeline {
                             }
                         }
                         *********************************************/
-                        /*stage('Veracode SAST - Sandbox Scan') {
+                        stage('Veracode SAST - Sandbox Scan') {
                             agent any
                             environment {
                                 appProfileName = "${product_id}_${repo_name}" //App Profile naming: <product_id>_$repo_name
@@ -188,31 +153,33 @@ pipeline {
                                 // Launch Veracode Sandbox Scan
                                 veracodeSandboxScan("${appProfileName}","${GIT_BRANCH}")
                             }
-                        }*/
+                        }
 
-                        /*stage('Veracode SCA - Agent-Base Scan') {
+                        stage('Veracode SCA - Agent-Base Scan') {
                             agent any
                             steps {
                                 veracodeSCA(wkspSiteID)
                             }
-                        }*/
+                        }
 
-                        /*stage('Veracode IaC') {
+                        stage('Veracode IaC') {
                             agent any
                             steps {
                                 veracodeIaCScan()
                             }
-                        }*/
-//                    }
-//                }
+                        }
+                    }
+                }
 
-                /*stage('featureX Pipeline - PR Open to dev') {
+                // This stage runs scans when an Open PR event to dev branch
+                stage('featureX Pipeline - PR Open to dev') {
                     when {
                         allOf {
                             equals expected: 'origin/featureX', actual: "${GIT_BRANCH}"
                             equals expected: 'dev', actual: "$target_branch_name"
                             equals expected: 'pull_request', actual: "$x_github_event"
                             equals expected: 'opened', actual: "$action"
+                            equals expected: true, actual: flagBuildSuccess
                         }
                     }
                     parallel {
@@ -245,15 +212,17 @@ pipeline {
                             }
                         }
                     }
-                }*/
+                }
 
-                /*stage('dev Pipeline - PR Open to main') {
+                // This stage runs scans when an Open PR event to main branch
+                stage('dev Pipeline - PR Open to main') {
                     when {
                         allOf {
                             equals expected: 'origin/dev', actual: "${GIT_BRANCH}"
                             equals expected: 'main', actual: "$target_branch_name"
                             equals expected: 'pull_request', actual: "$x_github_event"
                             equals expected: 'opened', actual: "$action"
+                            equals expected: true, actual: flagBuildSuccess
                         }
                     }
                     parallel {
@@ -286,14 +255,63 @@ pipeline {
                             }
                         }
                     }
-                }*/
-//            }
-//       }
+                }
+            }
+       }
 
         // This Stage runs scans related to CD phase during SDLC
         // Containers Scan
-        /*stage('Veracode Security Tests - Continous Delivery Pipeline'){
-
+        /*stage('Veracode Security Tests - Continuous Delivery Pipeline'){
+            // Execute only if Build succeeded
+            // Build process is run when closing the PR on main branch
+            when{
+                allOf{
+                    equals expected: 'main', actual: "$target_branch_name"
+                    equals expected: 'pull_request', actual: "$x_github_event"
+                    equals expected: 'closed', actual: "$action"
+                }
+            }
+            stages{
+                // This stage builds the container image to be scanned during CD pipeline
+                stage('Build Container Image'){
+                    // Build process is run when closing the PR on main branch
+                    when{
+                        allOf{
+                            equals expected: 'main', actual: "$target_branch_name"
+                            equals expected: 'pull_request', actual: "$x_github_event"
+                            equals expected: 'closed', actual: "$action"
+                        }
+                    }
+                    steps {
+                        script {
+                            try {
+                                echo "[INFO] Starting image build process..."
+                                sh 'docker builder prune -a -f'
+                                sh 'docker pull mariadb:10.6.2'
+                                sh 'docker build --no-cache -t verademo .'
+                                sh 'docker inspect verademo:latest'
+                                echo "[INFO] Build image process has finished."
+                                flagBuildSuccess = true
+                            }
+                            catch (Exception e) {
+                                unstable("${STAGE_NAME} failed!")
+                                currentBuild.result = 'FAILURE'
+                                flagBuildSuccess = false
+                            }
+                        }
+                    }
+                }
+                
+                stage('Veracode Container Scan') {
+                    agent any
+                    when{
+                        equals expected: true, actual: flagBuildSuccess
+                    }
+                    steps {
+                        veracodeContainerScan("verademo:latest")
+                    }
+                }
+            }
         }*/
     }
 }
