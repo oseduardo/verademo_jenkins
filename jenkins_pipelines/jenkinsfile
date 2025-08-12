@@ -117,14 +117,14 @@ pipeline {
         // This stage builds the container image to be scanned during CD pipeline
         stage('Build Container Image'){
             // Build process is run when closing the PR on main branch
-/*            when{
+            when{
                 allOf{
                     equals expected: 'main', actual: "$target_branch_name"
                     equals expected: 'pull_request', actual: "$x_github_event"
                     equals expected: 'closed', actual: "$action"
                 }
             }
-*/            steps {
+            steps {
                 script {
                     try {
                         echo "[INFO] Starting image build process..."
@@ -146,20 +146,20 @@ pipeline {
 
         // This Stage runs scans related to CI phase during SDLC
         // SAST, SCA & IaC scans
-//        stage('Veracode Security Tests - Continous Integration Pipeline') {
+        stage('Veracode Security Tests - Continous Integration Pipeline') {
             // Execute only if Build succeeded
-//            when {
-//                equals expected: true, actual: flagBuildSuccess
-//            }
-//            stages {
-//                stage('featureX - Push Commit') {
-//                    when {
-//                        allOf {
-//                            equals expected: 'origin/featureX', actual: "${GIT_BRANCH}"
-//                            equals expected: 'push', actual: "$x_github_event"
-//                        }
-//                    }
-//                    parallel {
+            when {
+                equals expected: true, actual: flagBuildSuccess
+            }
+            stages {
+                stage('featureX - Push Commit') {
+                    when {
+                        allOf {
+                            equals expected: 'origin/featureX', actual: "${GIT_BRANCH}"
+                            equals expected: 'push', actual: "$x_github_event"
+                        }
+                    }
+                    parallel {
                         /********************************************
                         // inicialmente se usará estrategia con sandbox scan en push/commit
                         // sobre rama feature/<ticket_jira>
@@ -175,7 +175,7 @@ pipeline {
                             }
                         }
                         *********************************************/
-                        /*stage('Veracode SAST - Sandbox Scan') {
+                        stage('Veracode SAST - Sandbox Scan') {
                             agent any
                             environment {
                                 appProfileName = "${product_id}_${repo_name}" //App Profile naming: <product_id>_$repo_name
@@ -188,25 +188,25 @@ pipeline {
                                 // Launch Veracode Sandbox Scan
                                 veracodeSandboxScan("${appProfileName}","${GIT_BRANCH}")
                             }
-                        }*/
+                        }
 
-                        /*stage('Veracode SCA - Agent-Base Scan') {
+                        stage('Veracode SCA - Agent-Base Scan') {
                             agent any
                             steps {
                                 veracodeSCA(wkspSiteID)
                             }
-                        }*/
+                        }
 
-                        /*stage('Veracode IaC') {
+                        stage('Veracode IaC') {
                             agent any
                             steps {
                                 veracodeIaCScan()
                             }
-                        }*/
-//                    }
-//                }
+                        }
+                    }
+                }
 
-                /*stage('featureX Pipeline - PR Open to dev') {
+                stage('featureX Pipeline - PR Open to dev') {
                     when {
                         allOf {
                             equals expected: 'origin/featureX', actual: "${GIT_BRANCH}"
@@ -245,9 +245,9 @@ pipeline {
                             }
                         }
                     }
-                }*/
+                }
 
-                /*stage('dev Pipeline - PR Open to main') {
+                stage('dev Pipeline - PR Open to main') {
                     when {
                         allOf {
                             equals expected: 'origin/dev', actual: "${GIT_BRANCH}"
@@ -286,9 +286,9 @@ pipeline {
                             }
                         }
                     }
-                }*/
-//            }
-//       }
+                }
+            }
+       }
 
         // This Stage runs scans related to CD phase during SDLC
         // Containers Scan
@@ -297,9 +297,9 @@ pipeline {
             // Build process is run when closing the PR on main branch
             when{
                 allOf{
-//                    equals expected: 'main', actual: "$target_branch_name"
-//                    equals expected: 'pull_request', actual: "$x_github_event"
-//                    equals expected: 'closed', actual: "$action"
+                    equals expected: 'main', actual: "$target_branch_name"
+                    equals expected: 'pull_request', actual: "$x_github_event"
+                    equals expected: 'closed', actual: "$action"
                     equals expected: true, actual: flagBuildSuccess
                 }
             }
