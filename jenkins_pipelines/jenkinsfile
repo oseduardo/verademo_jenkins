@@ -80,9 +80,9 @@ pipeline {
         // SAST, SCA & IaC scans
         stage('Veracode Security Tests - Continous Integration Pipeline') {
             // Execute only if Build succeeded
-            when {
+            /*when {
                 equals expected: true, actual: flagBuildSuccess
-            }
+            }*/
             stages {
 
 
@@ -133,6 +133,7 @@ pipeline {
                         allOf {
                             equals expected: 'origin/featureX', actual: "${GIT_BRANCH}"
                             equals expected: 'push', actual: "$x_github_event"
+                            equals expected: true, actual: flagBuildSuccess
                         }
                     }
                     parallel {
@@ -189,6 +190,7 @@ pipeline {
                             equals expected: 'dev', actual: "$target_branch_name"
                             equals expected: 'pull_request', actual: "$x_github_event"
                             equals expected: 'opened', actual: "$action"
+                            equals expected: true, actual: flagBuildSuccess
                         }
                     }
                     parallel {
@@ -230,6 +232,7 @@ pipeline {
                             equals expected: 'main', actual: "$target_branch_name"
                             equals expected: 'pull_request', actual: "$x_github_event"
                             equals expected: 'opened', actual: "$action"
+                            equals expected: true, actual: flagBuildSuccess
                         }
                     }
                     parallel {
