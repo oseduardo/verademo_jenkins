@@ -256,11 +256,11 @@ pipeline {
                     }
                 }
             }
-       }
+        }
 
         // This Stage runs scans related to CD phase during SDLC
         // Containers Scan
-        /*stage('Veracode Security Tests - Continuous Delivery Pipeline'){
+        stage('Veracode Security Tests - Continuous Delivery Pipeline'){
             // Execute only if Build succeeded
             // Build process is run when closing the PR on main branch
             when{
@@ -273,14 +273,6 @@ pipeline {
             stages{
                 // This stage builds the container image to be scanned during CD pipeline
                 stage('Build Container Image'){
-                    // Build process is run when closing the PR on main branch
-                    when{
-                        allOf{
-                            equals expected: 'main', actual: "$target_branch_name"
-                            equals expected: 'pull_request', actual: "$x_github_event"
-                            equals expected: 'closed', actual: "$action"
-                        }
-                    }
                     steps {
                         script {
                             try {
@@ -301,6 +293,7 @@ pipeline {
                     }
                 }
                 
+                // This stage runs Veracode Container Security to scan built container image
                 stage('Veracode Container Scan') {
                     agent any
                     when{
@@ -311,6 +304,6 @@ pipeline {
                     }
                 }
             }
-        }*/
+        }
     }
 }
