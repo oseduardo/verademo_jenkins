@@ -22,7 +22,7 @@ pipeline {
             ],
             genericVariables: [
                 [key: 'ref', value: '$.ref'],
-                [key: 'action', value: '$.action', defaultValue: 'null', regexpFilter: '^(null|opened|closed)$'],
+                [key: 'action', value: '$.action', defaultValue: 'null'],
                 [key: 'repo_name', value: '$.repository.name', defaultValue: 'null'],
                 [key: 'repo_full_name', value: '$.repository.full_name', defaultValue: 'null'],
                 [key: 'origin_branch_name', value: '$.pull_request.head.ref', defaultValue: 'null'],
