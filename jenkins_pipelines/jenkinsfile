@@ -82,7 +82,7 @@ pipeline {
             when{
                 allOf{
                     not { equals expected: 'main', actual: "$target_branch_name" }
-                    not { equals expected: 'pull_request', actual: "$x_github_event" }
+//                    not { equals expected: 'pull_request', actual: "$x_github_event" }
                     not { equals expected: 'closed', actual: "$action" }
                 }
             }
