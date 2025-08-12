@@ -40,53 +40,43 @@ pipeline {
     }
 
     stages {
-
-        //In this stage we create programatically App Profile and Workspace (SCA - ABS) for a specific repo.
-        //In a model where all admin steps are 100% automated (programatically), it's possible to call this 
-        // stage at any point when automated admin tasks are executed when creating a repo
-        stage('Setting Up Veracode Base Components'){
-            when{
-                not { equals expected: 'synchronize', actual: "$action" }
-            }
-            agent {
-                docker { 
-                    //It usesveracode/api-signing docker image to setup HMAC authentication to invoke Veracode's REST APIs
-                    image 'veracode/api-signing:latest'
-                    args '-e VERACODE_API_KEY_ID=$vID -e VERACODE_API_KEY_SECRET=$vKEY'
-                    reuseNode true
-                }
-            }
-
-            steps{
-                echo "[INFO] GIT_EVENT: $x_github_event"
-                echo "[INFO] GIT_ACTION: $action"
-                echo "[INFO] GIT_ORIGIN_BRANCH: $origin_branch_name"
-                echo "[INFO] GIT_TARGET_BRANCH: $target_branch_name"
-                echo "[INFO] GIT_COMMIT: ${GIT_COMMIT}"
-                echo "[INFO] GIT_URL: ${GIT_URL}"
-                echo "[INFO] GIT_REPO_NAME: $repo_name"
-                echo "[INFO] GIT_REPO_FULL_NAME: $repo_full_name"
-                echo ""
-
-                script{
-                    //Validates if ${appProfileName} exists in platform; if not, it's created
-                    veracodeCreateAppProfile("$repo_name", "$product_name", "$product_id","${vID}","${vKEY}") //App Profile naming: <product_id>_<$repo_name>
-
-                    //Validates if <product_id>_<repo_name> exists in platform; if not, it's created. It returns the site_id to be used when running SCA (ABS)
-                    wkspSiteID = veracodeCreateSCAWorkspace(repo_name,product_name,product_id)
-                }
-            }
-        }
-
         // This Stage runs scans related to CI phase during SDLC
         // SAST, SCA & IaC scans
         stage('Veracode Security Tests - Continous Integration Pipeline') {
-            // Execute only if Build succeeded
-            /*when {
-                equals expected: true, actual: flagBuildSuccess
-            }*/
             stages {
+                //In this stage we create programatically App Profile and Workspace (SCA - ABS) for a specific repo.
+                //In a model where all admin steps are 100% automated (programatically), it's possible to call this 
+                // stage at any point when automated admin tasks are executed when creating a repo
+                stage('Setting Up Veracode Base Components'){
+                    agent {
+                        docker { 
+                            //It usesveracode/api-signing docker image to setup HMAC authentication to invoke Veracode's REST APIs
+                            image 'veracode/api-signing:latest'
+                            args '-e VERACODE_API_KEY_ID=$vID -e VERACODE_API_KEY_SECRET=$vKEY'
+                            reuseNode true
+                        }
+                    }
 
+                    steps{
+                        echo "[INFO] GIT_EVENT: $x_github_event"
+                        echo "[INFO] GIT_ACTION: $action"
+                        echo "[INFO] GIT_ORIGIN_BRANCH: $origin_branch_name"
+                        echo "[INFO] GIT_TARGET_BRANCH: $target_branch_name"
+                        echo "[INFO] GIT_COMMIT: ${GIT_COMMIT}"
+                        echo "[INFO] GIT_URL: ${GIT_URL}"
+                        echo "[INFO] GIT_REPO_NAME: $repo_name"
+                        echo "[INFO] GIT_REPO_FULL_NAME: $repo_full_name"
+                        echo ""
+
+                        script{
+                            //Validates if ${appProfileName} exists in platform; if not, it's created
+                            veracodeCreateAppProfile("$repo_name", "$product_name", "$product_id","${vID}","${vKEY}") //App Profile naming: <product_id>_<$repo_name>
+
+                            //Validates if <product_id>_<repo_name> exists in platform; if not, it's created. It returns the site_id to be used when running SCA (ABS)
+                            wkspSiteID = veracodeCreateSCAWorkspace(repo_name,product_name,product_id)
+                        }
+                    }
+                }
 
                 // This stage builds the app to generate artifacts to be scanned during CI pipeline
                 stage('Build App') {
@@ -94,7 +84,6 @@ pipeline {
                     when{
                         allOf{
                             not { equals expected: 'main', actual: "$target_branch_name" }
-        //                    not { equals expected: 'pull_request', actual: "$x_github_event" }
                             not { equals expected: 'closed', actual: "$action" }
                         }
                     }
@@ -126,9 +115,7 @@ pipeline {
                     }
                 }
 
-
-
-
+                // This stage runs scans when a Push/Commit event to a feature branch
                 stage('featureX - Push Commit') {
                     when {
                         allOf {
@@ -184,6 +171,7 @@ pipeline {
                     }
                 }
 
+                // This stage runs scans when an Open PR event to dev branch
                 stage('featureX Pipeline - PR Open to dev') {
                     when {
                         allOf {
@@ -226,6 +214,7 @@ pipeline {
                     }
                 }
 
+                // This stage runs scans when an Open PR event to main branch
                 stage('dev Pipeline - PR Open to main') {
                     when {
                         allOf {
