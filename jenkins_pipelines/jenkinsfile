@@ -135,20 +135,20 @@ pipeline {
 
         // This Stage runs scans related to CI phase during SDLC
         // SAST, SCA & IaC scans
-        stage('Veracode Security Tests - Continous Integration Pipeline') {
+//        stage('Veracode Security Tests - Continous Integration Pipeline') {
             // Execute only if Build succeeded
-            when {
-                equals expected: true, actual: flagBuildSuccess
-            }
-            stages {
-                stage('featureX - Push Commit') {
-                    when {
-                        allOf {
-                            equals expected: 'origin/featureX', actual: "${GIT_BRANCH}"
-                            equals expected: 'push', actual: "$x_github_event"
-                        }
-                    }
-                    parallel {
+//            when {
+//                equals expected: true, actual: flagBuildSuccess
+//            }
+//            stages {
+//                stage('featureX - Push Commit') {
+//                    when {
+//                        allOf {
+//                            equals expected: 'origin/featureX', actual: "${GIT_BRANCH}"
+//                            equals expected: 'push', actual: "$x_github_event"
+//                        }
+//                    }
+//                    parallel {
                         /********************************************
                         // inicialmente se usará estrategia con sandbox scan en push/commit
                         // sobre rama feature/<ticket_jira>
@@ -192,8 +192,8 @@ pipeline {
                                 veracodeIaCScan()
                             }
                         }*/
-                    }
-                }
+//                    }
+//                }
 
                 /*stage('featureX Pipeline - PR Open to dev') {
                     when {
@@ -276,8 +276,8 @@ pipeline {
                         }
                     }
                 }*/
-            }
-        }
+//            }
+//       }
 
         // This Stage runs scans related to CD phase during SDLC
         // Containers Scan
