@@ -53,7 +53,7 @@ pipeline {
                             //It usesveracode/api-signing docker image to setup HMAC authentication to invoke Veracode's REST APIs
                             image 'veracode/api-signing:latest'
                             args '-e VERACODE_API_KEY_ID=$vID -e VERACODE_API_KEY_SECRET=$vKEY'
-                           //reuseNode true
+                            reuseNode true
                         }
                     }
 
